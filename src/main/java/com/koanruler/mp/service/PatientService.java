@@ -21,7 +21,7 @@ public class PatientService {
 	private EntityManager em;
 
 	public Integer getCount(int userID, String patientName, boolean inhospital) {
-		return patientRepository.countByIdAndNameAndState(userID, patientName, inhospital?1:0);
+		return patientRepository.countByUseridAndNameAndState(userID, patientName, inhospital?1:0);
 	}
 
 	public List<Patient> getPatientsInfo(int[] patientIDList) {

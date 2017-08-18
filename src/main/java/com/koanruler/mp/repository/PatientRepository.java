@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface PatientRepository extends PagingAndSortingRepository<Patient, Integer> {
 
-	Integer countByIdAndNameAndState(int userID, String patientName, int inhospital);
+	Integer countByUseridAndNameAndState(int userID, String patientName, int inhospital);
 
 	Patient findById(int patientID);
 
