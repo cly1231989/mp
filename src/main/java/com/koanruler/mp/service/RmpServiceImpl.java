@@ -49,20 +49,10 @@ public class RmpServiceImpl implements RmpService {
         return new ServiceResult(true, userService.getUserName(userID)).toJson();
     }
 
-//    @Override
-//    public String USER_GetAllParentID(int userID) {
-//        return new ServiceResult(true, userService.getAllParentID(userID) ).toJson();
-//    }
-
     @Override
     public String USER_GetSubDepartmentInfo(int userID) {
         return new ServiceResult(true, userService.getSubDepartmentInfo(userID) ).toJson();
     }
-
-//    @Override
-//    public String USER_Login(String account, String pwd) {
-//        return new ServiceResult(userService.login(account, pwd), null).toJson();
-//    }
 
     @Override
     public String PATIENT_GetCount(int userID, String patientName, boolean inhospital) {
@@ -84,11 +74,6 @@ public class RmpServiceImpl implements RmpService {
         return new ServiceResult(true, patientService.getAllPatientInfo(userID)).toJson();
     }
 
-//    @Override
-//    public String PATIENT_SearchPatient(String patientName) {
-//        return new ServiceResult(true, patientService.searchPatient(patientName)).toJson();
-//    }
-
     @Override
     public String PATIENT_AddPatient(Patient patientInfo) {
         return new ServiceResult(patientService.addPatient(patientInfo), null).toJson();
@@ -98,21 +83,6 @@ public class RmpServiceImpl implements RmpService {
     public String PATIENT_GetPatientInfo(int patientID) {
         return new ServiceResult(true, patientService.getPatient(patientID)).toJson();
     }
-
-//    @Override
-//    public String DATA_GetCount() {
-//        return new ServiceResult(true, dataService.getCount()).toJson();
-//    }
-
-//    @Override
-//    public String DATA_GetReplayInfoCount(int userID, String terminalNumOrPatientName) {
-//        return new ServiceResult(true, dataService.getReplayInfoCount(userID, terminalNumOrPatientName)).toJson();
-//    }
-
-//    @Override
-//    public String DATA_GetOneGroupReplayInfo(int userID, String search, int firstIndex, int count) {
-//        return new ServiceResult(true, dataService.getOneGroupReplayInfo(userID, search, firstIndex, count)).toJson();
-//    }
 
     @Override
     public String DATA_SearchReplayInfo(int userID, String patientname, String bednum, int hospitalid, int departmentid, String begindate, String enddate, int type, int state, int minseconds, int patientcount) {
@@ -164,21 +134,6 @@ public class RmpServiceImpl implements RmpService {
         return new ServiceResult(true, dataService.getDatasByPatienIdAndType(patientID, type)).toJson();
     }
 
-//    @Override
-//    public String DATA_GetDataFileNames(int patientID, int days, int datatype) {
-//        return new ServiceResult(true, dataService.getDataFileNames(patientID, days, datatype)).toJson();
-//    }
-
-//    @Override
-//    public String DATA_GetTransferState(int dataID) {
-//        return new ServiceResult(true, dataService.getTransferState(dataID)).toJson();
-//    }
-
-//    @Override
-//    public String DATA_Login(String account, String pwd) {
-//        return USER_Login(account, pwd);
-//    }
-
     @Override
     public String DATA_SetHandleState(List<Integer> dataIDs, int state, int userid) {
         return new ServiceResult(dataService.setHandleState(dataIDs, state, userid), null).toJson();
@@ -208,11 +163,6 @@ public class RmpServiceImpl implements RmpService {
     public String TERMINAL_GetTerminal(String terminalNumber) {
         return new ServiceResult(true, terminalService.getTerminal(terminalNumber)).toJson();
     }
-
-//    @Override
-//    public String TERMINAL_BindTerminal(String terminalNumber, int patientID) {
-//        return new ServiceResult(terminalService.bindTerminal(terminalNumber, patientID), null).toJson();
-//    }
 
     @Override
     public String SUBFACILITIES_GetAllDepartmentInfo(int userID) {

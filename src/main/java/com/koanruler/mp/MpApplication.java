@@ -1,5 +1,6 @@
 package com.koanruler.mp;
 
+import com.koanruler.mp.service.DataService;
 import com.koanruler.mp.service.RmpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,12 +19,17 @@ public class MpApplication implements CommandLineRunner {
 	@Autowired
     private RmpService rmpService;
 
+	@Autowired
+	private DataService dataService;
+
 	public static void main(String[] args) {
 		SpringApplication.run(MpApplication.class, args);
 	}
 
 	@Override
 	public void run(String... strings) throws Exception {
+		long n = dataService.getDataCount(1, "test");
+		dataService.getOneGroupData(1, null, 1, 50);
 		Endpoint.publish("http://localhost:" + servicePort
 				+ "/mp/cxf/clientservice", rmpService );
 	}

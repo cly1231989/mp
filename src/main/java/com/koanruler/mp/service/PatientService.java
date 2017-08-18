@@ -76,30 +76,15 @@ public class PatientService {
 		return patientRepository.findOne(patientID);
 	}
 
-	public List<Integer> getPatientIDList(List<Integer> userIDList) {
+	public List<Integer> getPatientIds(List<Integer> userIDList) {
 	    if(userIDList.size() == 0)
 	        return null;
 
 	    return patientRepository.getPatientIDByUserid(userIDList);
-//		String sql = "select id From Patient p WHERE ";
-//		for(Integer userid: userIDList){
-//			sql += "p.userid = " + userid + " or ";
-//		}
-//
-//		sql = sql.substring(0, sql.length()-4);
-//		Query query = em.createNativeQuery(sql, Integer.class);
-//		return query.getResultList();
 	}
 
     public List<Patient> getPatientsByUserId(List<Integer> userIDList, int count) {
         String sql = "select patient From Patient p WHERE (p.userid in :userIDList) and exists (select 1 from Data d where d.patientid = p.id and d.endtime != '0000-00-00 00:00:00') order by p.id DESC";
-//        for(Integer userid: userIDList){
-//            sql += "p.userid = " + userid + " or ";
-//        }
-//
-//        sql = sql.substring(0, sql.length()-4) + " )";
-//        sql += " and exists (select 1 from Data d where d.patientid = p.id and d.endtime != '0000-00-00 00:00:00')";
-//        sql += " order by p.id DESC";
 
         Query query = em.createQuery(sql);
         query.setParameter("userIDList", userIDList);

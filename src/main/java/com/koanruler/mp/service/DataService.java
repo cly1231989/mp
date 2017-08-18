@@ -17,9 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import javax.persistence.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -50,106 +48,104 @@ public class DataService {
 		return dataRepository.count();
 	}
 
-	public Long getReplayInfoCount(int userID, String terminalNumOrPatientName) {
-		List<Integer> childUserIDList = userService.getAllChildID(userID);
-		childUserIDList.add(0, userID);
+	//获取某个用户及其下属机构的病人的数据，并根据终端编号或者病人姓名进行过滤
+	public Long getDataCount(int userID, String terminalNumOrPatientName) {
+		List<Integer> userIds = userService.getAllChildID(userID);
+		userIds.add(0, userID);
 		
-		List<Integer> patientIDList = patientService.getPatientIDList(childUserIDList);
-		if(patientIDList.size() > 0){
+		List<Integer> patientIds = patientService.getPatientIds(userIds);
+		if(patientIds.size() > 0){
 
-//            if(terminalNumOrPatientName == null || terminalNumOrPatientName.length() == 0)
-//		        return dataRepository.getDataCountByUsers(patientIDList);
+            String sql = "Select d.id from Data d where (d.patientid IN :patientIDList";
+            if(terminalNumOrPatientName != null && terminalNumOrPatientName.length() > 0) {
+                sql += " and d.terminalnum like '%" + terminalNumOrPatientName + "%') or ( d.patientid IN (select p.id from Patient p where p.id In :patientIDList and p.name like '%" + terminalNumOrPatientName + "%')";
+            }
 
-            //return dataRepository.getDataCountByUsersAndTerminalNumOrPatientName(patientIDList, terminalNumOrPatientName);
-
-			String sql = "Select Count(d.id) from data d left join patient p on d.patientid = p.id where ";
-			if(terminalNumOrPatientName != null && terminalNumOrPatientName.length() > 0)
-				sql += "(d.terminalnum like '%" + terminalNumOrPatientName + "%' or p.name like '%" + terminalNumOrPatientName + "%' ) and ";
-
-			sql += "(d.patientid IN :patientIDList)";
-//			for(Integer patientid: patientIDList){
-//				sql += "d.patientid = " + patientid + " or ";
-//			}
-//
-//			sql = sql.substring(0, sql.length()-4);
-//			sql += ")";
-
+            sql += ")";
 			Query query = em.createQuery(sql);
-            query.setParameter("patientIDList", patientIDList);
+            query.setParameter("patientIDList", patientIds);
 
-			return (Long) query.getSingleResult();
+            return Long.valueOf( query.getResultList().size() );
+            //return (Long) query.getSingleResult();
 		}
 
 		return 0L;
 	}
 
-	public List<ReplayInfo> getOneGroupReplayInfo(int userID, String search, int firstIndex, int count) {
-		List<Integer> childUserIDList = userService.getAllChildID(userID);
-		childUserIDList.add(0, userID);
-		
-		List<ReplayInfo> replayInfoList = new ArrayList<ReplayInfo>();
-		List<Integer> patientIDList = patientService.getPatientIDList(childUserIDList);
-		if(patientIDList.size() > 0){
-			String sql = "Select d.id as did, d.patientid, d.terminalnum, d.filename, d.type, d.createdate as dcreatedate, d.endtime, "
-					+ "p.* from data as d left join patient as p on d.patientid = p.id where (";
-			if(search != null && search.length() > 0)
-				sql += " d.terminalnum like '%" + search + "%' or p.name like '%" + search + "%' ) and ( ";
+    //分页获取某个用户及其下属机构的病人的数据，并根据终端编号或者病人姓名进行过滤
+	public List<DataInfo> getOneGroupData(int userID, String terminalNumOrPatientName, int firstIndex, int count) {
+		List<Integer> userIds = userService.getAllChildID(userID);
+		userIds.add(0, userID);
 
-			for(Integer patientid: patientIDList){
-				sql += "d.patientid = " + patientid + " or ";
-			}
-			
-			sql = sql.substring(0, sql.length()-4);
-			sql += ") limit "+ (firstIndex-1) + "," + count;
+		List<DataInfo> dataInfoList = new ArrayList<DataInfo>();
+		List<Integer> patientIds = patientService.getPatientIds(userIds);
+		if(patientIds.size() > 0){
+			String sql = "Select d.id, d.patientid, d.terminalnum, d.filename, d.type, d.createdate, d.endtime, "
+					+ "p.name from Data d inner join Patient p on d.patientid = p.id where (d.patientid IN :patientIDList and p.id IN :patientIDList)";
+			if(terminalNumOrPatientName != null && terminalNumOrPatientName.length() > 0)
+				sql += " and (d.terminalnum like '%" + terminalNumOrPatientName + "%' or p.name like '%" + terminalNumOrPatientName + "%' ) ";
 
-			List dataList = em.createNamedQuery(sql).getResultList();
+			sql += " limit "+ (firstIndex-1) + "," + count;
+			Query query = em.createQuery(sql);
+            query.setParameter("patientIDList", patientIds);
+
+            List dataList = query.getResultList();
 			
-	    	listToReplayInfoList(dataList, replayInfoList);
+	    	listToReplayInfoList(dataList, dataInfoList);
 		}
     	 
-        return replayInfoList;  
+        return dataInfoList;
 	}
 
-	private void listToReplayInfoList(List dataList, List<ReplayInfo> replayInfoList){
+	private void listToReplayInfoList(List dataList, List<DataInfo> replayInfoList){
 		for (Iterator iter=dataList.iterator(); iter.hasNext();) {
 		    Object[] obj = (Object[])iter.next();
-		    
-		    ReplayInfo replayInfo = new ReplayInfo();
-		    replayInfo.data.setId( (Integer)obj[0] );
-		    replayInfo.data.setPatientid( (Integer)obj[1] );
-		    replayInfo.data.setTerminalnum( (String)obj[2] );
-		    replayInfo.data.setFilename( (String)obj[3] );
-		    replayInfo.data.setType( (Integer)obj[4] );
-		    replayInfo.data.setCreatedate( (String)obj[5] );
-		    replayInfo.data.setEndtime( (String)obj[6] );
-		    
-		    replayInfo.patient.setId( (Integer)obj[7] );
-		    replayInfo.patient.setUserid( (Integer)obj[8] );
-		    //replayInfo.patient.setPadrecordid( (Integer)obj[9] );
-		    replayInfo.patient.setPadrecordid( (Integer)obj[10] );
-		    replayInfo.patient.setName( (String)obj[11] );
-		    replayInfo.patient.setAge( (String)obj[12] );
-		    replayInfo.patient.setSex( (String)obj[13] );
-		    replayInfo.patient.setPhone( (String)obj[14] );
-		    replayInfo.patient.setBirthday( (String)obj[15] );
-		    replayInfo.patient.setCreatedate( (String)obj[16] );
-		    replayInfo.patient.setAddress( (String)obj[17] );
-		    replayInfo.patient.setApplydoctor( (String)obj[18] );
-		    replayInfo.patient.setNurse( (String)obj[19] );
-		    replayInfo.patient.setInpatientarea( (String)obj[20] );
-		    replayInfo.patient.setOutpatientnumber( (String)obj[21] );
-		    replayInfo.patient.setBednumber( (String)obj[22] );
-		    replayInfo.patient.setDepartment( (String)obj[23] );
-		    replayInfo.patient.setHospitalnumber( (String)obj[24] );
-		    replayInfo.patient.setSymptom( (String)obj[25] );
-		    replayInfo.patient.setHeight( (String)obj[26] );
-		    replayInfo.patient.setWeight( (String)obj[27] );
-		    replayInfo.patient.setLevel( (String)obj[28] );
-		    replayInfo.patient.setCategory( (String)obj[29] );
-		    replayInfo.patient.setInpatientarea( (String)obj[30] );
-		    replayInfo.patient.setBindtype( (Integer)obj[31] );
-		    replayInfo.patient.setZip( (String)obj[32] );
-		    
+
+		    DataInfo replayInfo = new DataInfo();
+            replayInfo.setDataId((Integer)obj[0]);
+            replayInfo.setPatientId((Integer)obj[1]);
+            replayInfo.setTerminalNum((String)obj[2]);
+            replayInfo.setFileName((String )obj[3]);
+            replayInfo.setDataType((Integer)obj[4]);
+            replayInfo.setCreateData((String)obj[5]);
+            replayInfo.setEndTime((String)obj[6]);
+            replayInfo.setPatientName((String)obj[7]);
+
+//		    replayInfo.data.setId( (Integer)obj[0] );
+//		    replayInfo.data.setPatientid( (Integer)obj[1] );
+//		    replayInfo.data.setTerminalnum( (String)obj[2] );
+//		    replayInfo.data.setFilename( (String)obj[3] );
+//		    replayInfo.data.setType( (Integer)obj[4] );
+//		    replayInfo.data.setCreatedate( (String)obj[5] );
+//		    replayInfo.data.setEndtime( (String)obj[6] );
+//
+//		    replayInfo.patient.setId( (Integer)obj[7] );
+//		    replayInfo.patient.setUserid( (Integer)obj[8] );
+//		    //replayInfo.patient.setPadrecordid( (Integer)obj[9] );
+//		    replayInfo.patient.setPadrecordid( (Integer)obj[10] );
+//		    replayInfo.patient.setName( (String)obj[11] );
+//		    replayInfo.patient.setAge( (String)obj[12] );
+//		    replayInfo.patient.setSex( (String)obj[13] );
+//		    replayInfo.patient.setPhone( (String)obj[14] );
+//		    replayInfo.patient.setBirthday( (String)obj[15] );
+//		    replayInfo.patient.setCreatedate( (String)obj[16] );
+//		    replayInfo.patient.setAddress( (String)obj[17] );
+//		    replayInfo.patient.setApplydoctor( (String)obj[18] );
+//		    replayInfo.patient.setNurse( (String)obj[19] );
+//		    replayInfo.patient.setInpatientarea( (String)obj[20] );
+//		    replayInfo.patient.setOutpatientnumber( (String)obj[21] );
+//		    replayInfo.patient.setBednumber( (String)obj[22] );
+//		    replayInfo.patient.setDepartment( (String)obj[23] );
+//		    replayInfo.patient.setHospitalnumber( (String)obj[24] );
+//		    replayInfo.patient.setSymptom( (String)obj[25] );
+//		    replayInfo.patient.setHeight( (String)obj[26] );
+//		    replayInfo.patient.setWeight( (String)obj[27] );
+//		    replayInfo.patient.setLevel( (String)obj[28] );
+//		    replayInfo.patient.setCategory( (String)obj[29] );
+//		    replayInfo.patient.setInpatientarea( (String)obj[30] );
+//		    replayInfo.patient.setBindtype( (Integer)obj[31] );
+//		    replayInfo.patient.setZip( (String)obj[32] );
+
 		    replayInfoList.add(replayInfo);
 		}
 	}

@@ -32,14 +32,6 @@ public class TerminalService {
 		List<BindTerminalInfo> bindTerminalInfoList = new ArrayList<BindTerminalInfo>();
 		
 		String sql = "select t From Terminal t WHERE (t.userid in :userIDList) and t.deleteflag <> true order by t.patientid desc";
-//		for(int id : userIDList){
-//			sql.append("t.userid = ");
-//			sql.append(id);
-//			sql.append(" or ");
-//		}
-//
-//		sql.delete(sql.length()-4, sql.length());
-//		sql.append(") and t.deleteflag != '1' order by t.patientid desc");
 		Query query = em.createQuery(sql);
 		query.setParameter("userIDList", userIDList);
 		List<Terminal> terminalInfoList = query.getResultList();

@@ -20,17 +20,9 @@ public interface RmpService {
     @WebMethod
     String USER_GetUserName(@WebParam(name = "userID") int userID);
 
-    //获取一个用户的所有上级用户id
-//    @WebMethod
-//    String USER_GetAllParentID(@WebParam(name = "userID") int userID);
-
     //获取所有下属机构的信息(id, type, name)
     @WebMethod
     String USER_GetSubDepartmentInfo(@WebParam(name = "userID") int userID);
-
-    //登录
-//    @WebMethod
-//    String USER_Login(@WebParam(name = "account") String account, @WebParam(name = "pwd") String pwd);
 
     /**************************************************************************/
     //获取某一用户的病人数量，并根据病人姓名和住院状态进行过滤
@@ -54,10 +46,6 @@ public interface RmpService {
     @WebMethod
     String PATIENT_GetAllPatientInfo(@WebParam(name = "userID") int userID);
 
-//    //根据姓名搜索病人
-//    @WebMethod
-//    String PATIENT_SearchPatient(@WebParam(name = "patientName") String patientName);
-
     //添加病人
     @WebMethod
     String PATIENT_AddPatient(@WebParam(name = "patientinfo") Patient patientInfo);
@@ -67,21 +55,6 @@ public interface RmpService {
     String PATIENT_GetPatientInfo(@WebParam(name = "patientID") int patientID);
 
     /**************************************************************************/
-//    //获取数据数量
-//    @WebMethod
-//    String DATA_GetCount();
-
-//    //获取某一用户及其下属机构的数据数量，并根据terminalNum或者PatientName进行过滤
-//    @WebMethod
-//    String DATA_GetReplayInfoCount(@WebParam(name = "userID") int userID, @WebParam(name = "search") String search);
-
-//    //分页获取某一用户及其下属机构的数据，并根据terminalNum或者PatientName进行过滤
-//    @WebMethod
-//    String DATA_GetOneGroupReplayInfo(@WebParam(name = "userID") int userID,
-//                                      @WebParam(name = "search") String search,
-//                                      @WebParam(name = "firstIndex") int firstIndex,
-//                                      @WebParam(name = "count") int count);
-
     //获取某一用户及其下属机构的数据，并根据条件过滤
     //will be deprecated because of efficiency
     @WebMethod
@@ -121,20 +94,6 @@ public interface RmpService {
     @WebMethod
     String DATA_GetPatientData(@WebParam(name = "patientID") int patientID, @WebParam(name = "type") int type);
 
-//    //获取某一病人的限定天数的数据文件名
-//    @WebMethod
-//    String DATA_GetDataFileNames(@WebParam(name = "patientID") int patientID,
-//                                 @WebParam(name = "days") int days,
-//                                 @WebParam(name = "type") int datatype);
-
-//    //获取数据的转换状态
-//    @WebMethod
-//    String DATA_GetTransferState(@WebParam(name = "dataID") int dataID);
-
-//    //登录
-//    @WebMethod
-//    String DATA_Login(@WebParam(name = "account") String account, @WebParam(name = "pwd") String pwd);
-
     //设置数据的处理状态及处理用户
     @WebMethod
     String DATA_SetHandleState(@WebParam(name = "dataIDs") List<Integer> dataIDs,
@@ -168,10 +127,6 @@ public interface RmpService {
     //根据id获取终端信息
     @WebMethod
     String TERMINAL_GetTerminal(@WebParam(name = "terminalID") String terminalID);
-
-//    //绑定终端
-//    @WebMethod
-//    String TERMINAL_BindTerminal(@WebParam(name = "terminalID") String terminalID, @WebParam(name = "patientID") int patientID);
 
     /**************************************************************************/
     //获取某一用户的所有科室

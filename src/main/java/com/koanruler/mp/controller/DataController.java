@@ -2,7 +2,7 @@ package com.koanruler.mp.controller;
 
 import com.koanruler.mp.entity.DataSearchCondition;
 import com.koanruler.mp.entity.PatientDataInfo;
-import com.koanruler.mp.entity.ReplayInfo;
+import com.koanruler.mp.entity.DataInfo;
 import com.koanruler.mp.service.DataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,18 +22,18 @@ public class DataController {
 	{
 		return dataService.getCount();
 	}
-	
+
 	public Long getReplayInfoCount( @WebParam(name="userID") int userID, @WebParam(name="search")String search)
 	{
-		return dataService.getReplayInfoCount(userID, search);
+		return dataService.getDataCount(userID, search);
 	}
 	
-	public List<ReplayInfo> getOneGroupReplayInfo(@WebParam(name="userID") int userID,
-                                                  @WebParam(name="search")String search,
-                                                  @WebParam(name="firstIndex") int firstIndex,
-                                                  @WebParam(name="count") int count)
+	public List<DataInfo> getOneGroupReplayInfo(@WebParam(name="userID") int userID,
+												@WebParam(name="search")String search,
+												@WebParam(name="firstIndex") int firstIndex,
+												@WebParam(name="count") int count)
 	{
-		return dataService.getOneGroupReplayInfo( userID, search, firstIndex, count);
+		return dataService.getOneGroupData( userID, search, firstIndex, count);
 	}
 	
 	public List<PatientDataInfo> searchReplayInfo(@WebParam(name="userID") int userID,
