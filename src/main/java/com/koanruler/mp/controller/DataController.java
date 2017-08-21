@@ -49,6 +49,6 @@ public class DataController {
                                                   @WebParam(name="patientcount")int patientcount)
 	{
 		DataSearchCondition searchCondition = new DataSearchCondition(patientname, bednum, hospitalid, departmentid, begindate, enddate, type, state, patientcount, minseconds);
-		return dataService.searchReplayInfo(userID, searchCondition);
+		return dataService.searchPatientDataInfo(userID, searchCondition);
 	}
 }

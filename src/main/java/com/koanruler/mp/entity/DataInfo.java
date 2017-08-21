@@ -10,7 +10,21 @@ public class DataInfo {
 	private String endTime;
 	private String patientName;
 
-	public int getDataId() {
+    public DataInfo() {
+    }
+
+    public DataInfo(int dataId, int patientId, int dataType, String terminalNum, String fileName, String createData, String endTime, String patientName) {
+        this.dataId = dataId;
+        this.patientId = patientId;
+        this.dataType = dataType;
+        this.terminalNum = terminalNum;
+        this.fileName = fileName;
+        this.createData = createData;
+        this.endTime = endTime;
+        this.patientName = patientName;
+    }
+
+    public int getDataId() {
 		return dataId;
 	}
 

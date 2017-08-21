@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.koanruler.mp.entity.DataSearchCondition;
 import com.koanruler.mp.entity.Patient;
 import com.koanruler.mp.entity.ServiceResult;
-import com.koanruler.mp.entity.Subfacilities;
 import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
 import org.slf4j.Logger;
@@ -87,7 +86,7 @@ public class RmpServiceImpl implements RmpService {
     @Override
     public String DATA_SearchReplayInfo(int userID, String patientname, String bednum, int hospitalid, int departmentid, String begindate, String enddate, int type, int state, int minseconds, int patientcount) {
         DataSearchCondition dataSearchCondition = new DataSearchCondition(patientname, bednum, hospitalid, departmentid, begindate, enddate, type, state, patientcount, minseconds);
-        return new ServiceResult(true, dataService.searchReplayInfo(userID, dataSearchCondition) ).toJson();
+        return new ServiceResult(true, dataService.searchPatientDataInfo(userID, dataSearchCondition) ).toJson();
     }
 
     @Override

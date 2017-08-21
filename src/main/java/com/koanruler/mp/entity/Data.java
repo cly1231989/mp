@@ -1,11 +1,21 @@
 package com.koanruler.mp.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
+@SqlResultSetMapping(
+		name = "DataInfoMapping",
+		classes = @ConstructorResult(
+				targetClass = DataInfo.class,
+				columns = {
+						@ColumnResult(name = "dataId", type = Integer.class),
+						@ColumnResult(name = "patientId", type = Integer.class),
+						@ColumnResult(name = "dataType", type = Integer.class),
+						@ColumnResult(name = "terminalNum"),
+						@ColumnResult(name = "fileName"),
+						@ColumnResult(name = "createData"),
+						@ColumnResult(name = "endTime"),
+						@ColumnResult(name = "patientName")}))
 public class Data {
 
 	// Fields

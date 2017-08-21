@@ -77,85 +77,49 @@ public class DataService {
 		List<Integer> userIds = userService.getAllChildID(userID);
 		userIds.add(0, userID);
 
-		List<DataInfo> dataInfoList = new ArrayList<DataInfo>();
+		//List<DataInfo> dataInfoList = new ArrayList<DataInfo>();
 		List<Integer> patientIds = patientService.getPatientIds(userIds);
-		if(patientIds.size() > 0){
-			String sql = "Select d.id, d.patientid, d.terminalnum, d.filename, d.type, d.createdate, d.endtime, "
-					+ "p.name from Data d inner join Patient p on d.patientid = p.id where (d.patientid IN :patientIDList and p.id IN :patientIDList)";
-			if(terminalNumOrPatientName != null && terminalNumOrPatientName.length() > 0)
-				sql += " and (d.terminalnum like '%" + terminalNumOrPatientName + "%' or p.name like '%" + terminalNumOrPatientName + "%' ) ";
+		if(patientIds.size() == 0) {
+            return null;
+        }
 
-			sql += " limit "+ (firstIndex-1) + "," + count;
-			Query query = em.createQuery(sql);
-            query.setParameter("patientIDList", patientIds);
+        String ids = String.join(",", patientIds.stream().map(id -> String.valueOf(id)).collect(Collectors.toList()));
+        String sql = "Select d.id as dataId, d.patientid as patientId, d.type as dataType, d.terminalnum as terminalNum, d.filename as fileName, d.createdate as createData, d.endtime as endTime, "
+                + "p.name as patientName from Data d inner join Patient p on d.patientid = p.id where (d.patientid IN (" + ids + ") and p.id IN (" + ids + "))";
+        if(terminalNumOrPatientName != null && terminalNumOrPatientName.length() > 0)
+            sql += " and (d.terminalnum like '%" + terminalNumOrPatientName + "%' or p.name like '%" + terminalNumOrPatientName + "%' ) ";
 
-            List dataList = query.getResultList();
-			
-	    	listToReplayInfoList(dataList, dataInfoList);
-		}
-    	 
-        return dataInfoList;
+        sql += " limit "+ (firstIndex-1) + "," + count;
+        return em.createNativeQuery(sql, "DataInfoMapping").getResultList();
+
+        //resultListToDataInfoList(dataList, dataInfoList);
+        //return dataInfoList;
 	}
 
-	private void listToReplayInfoList(List dataList, List<DataInfo> replayInfoList){
-		for (Iterator iter=dataList.iterator(); iter.hasNext();) {
-		    Object[] obj = (Object[])iter.next();
-
-		    DataInfo replayInfo = new DataInfo();
-            replayInfo.setDataId((Integer)obj[0]);
-            replayInfo.setPatientId((Integer)obj[1]);
-            replayInfo.setTerminalNum((String)obj[2]);
-            replayInfo.setFileName((String )obj[3]);
-            replayInfo.setDataType((Integer)obj[4]);
-            replayInfo.setCreateData((String)obj[5]);
-            replayInfo.setEndTime((String)obj[6]);
-            replayInfo.setPatientName((String)obj[7]);
-
-//		    replayInfo.data.setId( (Integer)obj[0] );
-//		    replayInfo.data.setPatientid( (Integer)obj[1] );
-//		    replayInfo.data.setTerminalnum( (String)obj[2] );
-//		    replayInfo.data.setFilename( (String)obj[3] );
-//		    replayInfo.data.setType( (Integer)obj[4] );
-//		    replayInfo.data.setCreatedate( (String)obj[5] );
-//		    replayInfo.data.setEndtime( (String)obj[6] );
+//	private void resultListToDataInfoList(List dataList, List<DataInfo> replayInfoList){
+//		for (Iterator iter=dataList.iterator(); iter.hasNext();) {
+//		    Object[] obj = (Object[])iter.next();
+//		    DataInfo replayInfo = new DataInfo();
+//            replayInfo.setDataId((Integer)obj[0]);
+//            replayInfo.setPatientId((Integer)obj[1]);
+//            replayInfo.setTerminalNum((String)obj[2]);
+//            replayInfo.setFileName((String )obj[3]);
+//            replayInfo.setDataType((Integer)obj[4]);
+//            replayInfo.setCreateData((String)obj[5]);
+//            replayInfo.setEndTime((String)obj[6]);
+//            replayInfo.setPatientName((String)obj[7]);
 //
-//		    replayInfo.patient.setId( (Integer)obj[7] );
-//		    replayInfo.patient.setUserid( (Integer)obj[8] );
-//		    //replayInfo.patient.setPadrecordid( (Integer)obj[9] );
-//		    replayInfo.patient.setPadrecordid( (Integer)obj[10] );
-//		    replayInfo.patient.setName( (String)obj[11] );
-//		    replayInfo.patient.setAge( (String)obj[12] );
-//		    replayInfo.patient.setSex( (String)obj[13] );
-//		    replayInfo.patient.setPhone( (String)obj[14] );
-//		    replayInfo.patient.setBirthday( (String)obj[15] );
-//		    replayInfo.patient.setCreatedate( (String)obj[16] );
-//		    replayInfo.patient.setAddress( (String)obj[17] );
-//		    replayInfo.patient.setApplydoctor( (String)obj[18] );
-//		    replayInfo.patient.setNurse( (String)obj[19] );
-//		    replayInfo.patient.setInpatientarea( (String)obj[20] );
-//		    replayInfo.patient.setOutpatientnumber( (String)obj[21] );
-//		    replayInfo.patient.setBednumber( (String)obj[22] );
-//		    replayInfo.patient.setDepartment( (String)obj[23] );
-//		    replayInfo.patient.setHospitalnumber( (String)obj[24] );
-//		    replayInfo.patient.setSymptom( (String)obj[25] );
-//		    replayInfo.patient.setHeight( (String)obj[26] );
-//		    replayInfo.patient.setWeight( (String)obj[27] );
-//		    replayInfo.patient.setLevel( (String)obj[28] );
-//		    replayInfo.patient.setCategory( (String)obj[29] );
-//		    replayInfo.patient.setInpatientarea( (String)obj[30] );
-//		    replayInfo.patient.setBindtype( (Integer)obj[31] );
-//		    replayInfo.patient.setZip( (String)obj[32] );
+//		    replayInfoList.add(replayInfo);
+//		}
+//	}
 
-		    replayInfoList.add(replayInfo);
-		}
-	}
-
-	public List<PatientDataInfo> searchReplayInfo(int userID, DataSearchCondition searchCondition) {
+	//获取某个用户及下属机构的病人信息和对应的数据信息，并根据条件过滤
+	public List<PatientDataInfo> searchPatientDataInfo(int userID, DataSearchCondition searchCondition) {
         long beginTime1 = System.currentTimeMillis();
-		List<Integer> childUserIDList = userService.getAllChildID(userID);
-		childUserIDList.add(0, userID);
+		List<Integer> userIds = userService.getAllChildID(userID);
+		userIds.add(0, userID);
 
-        List<PatientDataInfo> dataInfoList = new ArrayList<PatientDataInfo>();
+        List<PatientDataInfo> patientDataInfoList = new ArrayList<PatientDataInfo>();
 
         String sql =   "SELECT "
                 + "p.id AS p_id, "
@@ -195,18 +159,12 @@ public class DataService {
             List<Integer> departmentIDList = em.createQuery(usersql).getResultList();
             departmentIDList.add(searchCondition.hospitalid);
 
-            for(Integer userid: departmentIDList){
-                sql += "patient.userid = " + userid + " or ";
-            }
-
-            sql = sql.substring(0, sql.length()-4);
+            String departmentIds = String.join(",", departmentIDList.stream().map(id -> String.valueOf(id)).collect(Collectors.toList()));
+            sql += "patient.userid in (" + departmentIds + ") ";
         }
         else{
-            for(Integer userid: childUserIDList){
-                sql += "patient.userid = " + userid + " or ";
-            }
-
-            sql = sql.substring(0, sql.length()-4);
+            String ids = String.join(",", userIds.stream().map(id -> String.valueOf(id)).collect(Collectors.toList()));
+            sql += "patient.userid in (" + ids + ") ";
         }
 
         sql += " ) ";
@@ -215,10 +173,10 @@ public class DataService {
         if(searchCondition.bednum.length() > 0)
             sql += " and patient.bednumber = " + searchCondition.bednum;
 
-        if(searchCondition.state != 5){
+        if(searchCondition.state != 5){ //不是查找所有状态的数据
             if(searchCondition.state == 1){
                 sql += " and exists (select 1 from data where data.patientid = patient.id and data.handlestate=1";
-                sql += " and data.endtime != '0000-00-00 00:00:00' and data.type=" + searchCondition.type + ")";
+                sql += " and data.type=" + searchCondition.type + ")";
             }
             else{
                 if(searchCondition.state == 0)
@@ -246,7 +204,7 @@ public class DataService {
 
         long beginTime3 = System.currentTimeMillis();
         List<User> users = userService.getAllAnalysts();
-        users.addAll( userService.getAllUser(childUserIDList) );
+        users.addAll( userService.getAllUser(userIds) );
         //System.out.println( "get user time: " + (System.currentTimeMillis() - beginTime3));
 
         long beginTime4 = System.currentTimeMillis();
@@ -294,7 +252,7 @@ public class DataService {
                             patientDataInfo.patientinfo.setHospital(user.getName());
                         }
 
-                        dataInfoList.add(patientDataInfo);
+                        patientDataInfoList.add(patientDataInfo);
                         previousPID = PID;
                     }
 
@@ -310,7 +268,7 @@ public class DataService {
                             TypeConverter.objectToInt(record[17]),
                             TypeConverter.objectToString(record[18]),
                             TypeConverter.objectToString(record[19]));
-                    dataInfoList.get(dataInfoList.size()-1).datas.add(dataIDAndFileName);
+                    patientDataInfoList.get(patientDataInfoList.size()-1).datas.add(dataIDAndFileName);
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -318,13 +276,13 @@ public class DataService {
             }
         }
 
-        for(int i = 0; i < dataInfoList.size(); i++){
-            dataInfoList.get(i).patientinfo.setBegintime( dataInfoList.get(i).datas.get(dataInfoList.get(i).datas.size() - 1).getCreatedate() );
-            dataInfoList.get(i).patientinfo.setEndtime( dataInfoList.get(i).datas.get(0).getEndtime() );
-            dataInfoList.get(i).patientinfo.setState( GetHandleStateDesc(dataInfoList.get(i).datas, users) );
+        for(int i = 0; i < patientDataInfoList.size(); i++){
+            patientDataInfoList.get(i).patientinfo.setBegintime( patientDataInfoList.get(i).datas.get(patientDataInfoList.get(i).datas.size() - 1).getCreatedate() );
+            patientDataInfoList.get(i).patientinfo.setEndtime( patientDataInfoList.get(i).datas.get(0).getEndtime() );
+            patientDataInfoList.get(i).patientinfo.setState( GetHandleStateDesc(patientDataInfoList.get(i).datas, users) );
         }
         //System.out.println( "parse data time: " + (System.currentTimeMillis() - beginTime2));
-        return dataInfoList;
+        return patientDataInfoList;
 	}
 
     private User GetUser(int userid, List<User> users){
