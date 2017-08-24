@@ -25,6 +25,7 @@ public class TerminalService {
 	@PersistenceContext
 	private EntityManager em;
 
+	//获取某一用户及下级用户的终端绑定信息
 	public List<BindTerminalInfo> getAllTerminalInfo(int userID) {
 		List<Integer> userIDList = userService.getAllChildID(userID);
 		userIDList.add(userID);

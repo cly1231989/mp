@@ -16,7 +16,8 @@ public class UserService {
 	
 	@Autowired
 	private UserRepository userRepository;
-	
+
+	//获取所有的上级用户的ID
 	public List<Integer> getAllParentID(int userID)
 	{			 
 		List<Integer> parentIDList = new ArrayList<Integer>();
@@ -47,6 +48,7 @@ public class UserService {
 		return userRepository.findOne(userID).getName();
 	}
 
+	//获取下级用户信息
 	public Organization getSubDepartmentInfo(int userID) {
 		Organization selfinfo = new Organization();
 		List<Organization> subs = new ArrayList<Organization>();
@@ -74,7 +76,8 @@ public class UserService {
 	public Boolean login(String account, String pwd) {
 		return userRepository.findByAccount(account).getPwd().equals(pwd);
 	}
-	
+
+	//获取所有的下级用户ID
 	public List<Integer> getAllChildID(int userID)
 	{
 		List<Integer> childIDList = new ArrayList<Integer>();
@@ -100,11 +103,12 @@ public class UserService {
 		return userRepository.findOne(userid);
 	}
 
+	//获取所有的分析师
 	public List<User> getAllAnalysts() {
 		return userRepository.findByType(7);
 	}
 
-	public List<User> getAllUser(List<Integer> childUserIDList) {
-		return userRepository.findByIdIn(childUserIDList);
+	public List<User> getAllUser(List<Integer> userIDList) {
+		return userRepository.findByIdIn(userIDList);
 	}
 }
