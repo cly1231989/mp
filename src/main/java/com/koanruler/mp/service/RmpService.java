@@ -33,7 +33,7 @@ public interface RmpService {
 
     //根据id获取病人信息
     @WebMethod
-    String PATIENT_GetBindPatientInfo(@WebParam(name = "patientIDList") int[] patientIDList);
+    String PATIENT_GetBindPatientInfo(@WebParam(name = "patientIDList") List<Integer> patientIDList);
 
     //分布获取某一用户下的病人信息
     @WebMethod

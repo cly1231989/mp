@@ -59,7 +59,7 @@ public class RmpServiceImpl implements RmpService {
     }
 
     @Override
-    public String PATIENT_GetBindPatientInfo(int[] patientIDList) {
+    public String PATIENT_GetBindPatientInfo(List<Integer> patientIDList) {
         return new ServiceResult(true, patientService.getPatientsInfo(patientIDList)).toJson();
     }
 

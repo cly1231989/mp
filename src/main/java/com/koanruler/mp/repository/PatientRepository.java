@@ -17,15 +17,16 @@ public interface PatientRepository extends PagingAndSortingRepository<Patient, I
 	Integer countByUseridAndNameAndState(int userID, String patientName, int inhospital);
 
 	Patient findById(int patientID);
+	List<Patient> findByIdIn(List<Integer> patientIDList);
 
 	List<Patient> findByIdAndNameAndState(int userID, String patientName, int i);
 
 	List<Patient> findByUserid(int userID);
+	List<Patient> findByNameContains(String name);
 
     List<Patient> findByUseridIn(List<Integer> userIDList);
 
 	List<Patient> findByNameLike(String patientName);
 
-	@Query("select p.id From Patient p WHERE p.userid in :userIDList")
-    List<Integer> getPatientIDByUserid(@Param("userIDList") List<Integer> userIDList);
+    List<Integer> getPatientIDByUseridIn(List<Integer> userIDList);
 }

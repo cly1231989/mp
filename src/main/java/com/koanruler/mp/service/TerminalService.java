@@ -2,6 +2,8 @@ package com.koanruler.mp.service;
 
 import com.koanruler.mp.entity.*;
 import com.koanruler.mp.repository.TerminalRepository;
+import com.querydsl.core.Tuple;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,42 @@ public class TerminalService {
 		userIDList.add(userID);
 
 		List<BindTerminalInfo> bindTerminalInfoList = new ArrayList<BindTerminalInfo>();
+        List<BindTerminalInfo> bindTerminalInfoList1 = new ArrayList<BindTerminalInfo>();
+
+		JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+        List<Tuple> result = queryFactory.select(QTerminal.terminal, QUser.user)
+					.from(QTerminal.terminal)
+                    .join(QUser.user)
+                    .on(QTerminal.terminal.userid.eq(QUser.user.id))
+					.leftJoin(QPatient.patient)
+					.on(QTerminal.terminal.patientid.eq(QPatient.patient.id))
+					.where(QTerminal.terminal.userid.in(userIDList))
+					.fetch();
+
+        for (Tuple row: result){
+            Terminal terminal = row.get(QTerminal.terminal);
+            User user = row.get(QUser.user);
+            Patient patient = row.get(QPatient.patient);
+
+            PatientInfo patientinfo = new PatientInfo();
+            BindTerminalInfo bindTerminalInfo = new BindTerminalInfo();
+            bindTerminalInfo.setTerminal(terminal);
+            bindTerminalInfo.setPatientinfo(patientinfo);
+
+            bindTerminalInfo.getPatientinfo().setUsername(user.getName());
+            bindTerminalInfo.getPatientinfo().setPatient(patient);
+
+            if(user.getType() == 5){   //科室
+                bindTerminalInfo.getPatientinfo().setDepartment( user.getName() );
+                User parent = userService.getUser(user.getParentuserid());
+                bindTerminalInfo.getPatientinfo().setHospital(parent.getName());
+            }else if(user.getType() == 4){   //医院
+                bindTerminalInfo.getPatientinfo().setDepartment("");
+                bindTerminalInfo.getPatientinfo().setHospital(user.getName());
+            }
+
+            bindTerminalInfoList1.add(bindTerminalInfo);
+        }
 		
 		String sql = "select t From Terminal t WHERE (t.userid in :userIDList) and t.deleteflag <> true order by t.patientid desc";
 		Query query = em.createQuery(sql);
