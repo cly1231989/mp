@@ -20,7 +20,7 @@ public class PatientController {
 		return patientService.getCount(userID, patientName, inhospital);
 	}
 	
-	public List<Patient> getBindPatientInfo(@WebParam(name="patientIDList") int[] patientIDList )
+	public List<Patient> getBindPatientInfo(@WebParam(name="patientIDList") List<Integer> patientIDList )
 	{
 		return patientService.getPatientsInfo(patientIDList);
 	}

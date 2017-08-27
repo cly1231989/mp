@@ -3,6 +3,11 @@ package com.koanruler.mp.service;
 import com.koanruler.mp.entity.*;
 import com.koanruler.mp.repository.DataRepository;
 import com.koanruler.mp.util.TypeConverter;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -17,7 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -44,15 +51,18 @@ public class DataService {
 	@PersistenceContext
 	private EntityManager em;
 
+	@Autowired
+    private JPAQueryFactory queryFactory;
+
 	public long getCount() {		
 		return dataRepository.count();
 	}
 
-	//获取某个用户及其下属机构的病人的数据，并根据终端编号或者病人姓名进行过滤
+	//获取某个用户及其下属机构的病人的数量，并根据终端编号或者病人姓名进行过滤
 	public Long getDataCount(int userID, String terminalNumOrPatientName) {
 		List<Integer> userIds = userService.getAllChildID(userID);
 		userIds.add(0, userID);
-		
+
 		List<Integer> patientIds = patientService.getPatientIds(userIds);
 		if(patientIds.size() > 0){
 
@@ -77,20 +87,37 @@ public class DataService {
 		List<Integer> userIds = userService.getAllChildID(userID);
 		userIds.add(0, userID);
 
-		//List<DataInfo> dataInfoList = new ArrayList<DataInfo>();
 		List<Integer> patientIds = patientService.getPatientIds(userIds);
 		if(patientIds.size() == 0) {
             return null;
         }
 
-        String ids = String.join(",", patientIds.stream().map(id -> String.valueOf(id)).collect(Collectors.toList()));
-        String sql = "Select d.id as dataId, d.patientid as patientId, d.type as dataType, d.terminalnum as terminalNum, d.filename as fileName, d.createdate as createData, d.endtime as endTime, "
-                + "p.name as patientName from Data d inner join Patient p on d.patientid = p.id where (d.patientid IN (" + ids + ") and p.id IN (" + ids + "))";
-        if(terminalNumOrPatientName != null && terminalNumOrPatientName.length() > 0)
-            sql += " and (d.terminalnum like '%" + terminalNumOrPatientName + "%' or p.name like '%" + terminalNumOrPatientName + "%' ) ";
+        QData qData = QData.data;
+		QPatient qPatient = QPatient.patient;
+        BooleanBuilder predicate = new BooleanBuilder();
+        predicate.and( qData.patientid.in(patientIds).and(qPatient.id.in(patientIds)) );
+        if( terminalNumOrPatientName != null && !terminalNumOrPatientName.isEmpty() )
+            predicate.and(qData.terminalnum.contains(terminalNumOrPatientName).or(qPatient.name.contains(terminalNumOrPatientName)));
 
-        sql += " limit "+ (firstIndex-1) + "," + count;
-        return em.createNativeQuery(sql, "DataInfoMapping").getResultList();
+        QueryResults results = queryFactory.select(Projections.constructor(DataInfo.class, qData.id, qData.patientid, qData.type, qData.terminalnum, qData.filename, qData.createdate, qData.endtime, qPatient.name))
+                    .from(qData)
+                    .join(qPatient)
+                    .on(qData.patientid.eq(qPatient.id))
+                    .where(predicate)
+                    .offset(firstIndex)
+                    .limit(count).fetchResults();
+
+        //results.getTotal(); //总数
+        return results.getResults();
+
+//        String ids = String.join(",", patientIds.stream().map(id -> String.valueOf(id)).collect(Collectors.toList()));
+//        String sql = "Select d.id as dataId, d.patientid as patientId, d.type as dataType, d.terminalnum as terminalNum, d.filename as fileName, d.createdate as createData, d.endtime as endTime, "
+//                + "p.name as patientName from Data d inner join Patient p on d.patientid = p.id where (d.patientid IN (" + ids + ") and p.id IN (" + ids + "))";
+//        if(terminalNumOrPatientName != null && terminalNumOrPatientName.length() > 0)
+//            sql += " and (d.terminalnum like '%" + terminalNumOrPatientName + "%' or p.name like '%" + terminalNumOrPatientName + "%' ) ";
+//
+//        sql += " limit "+ (firstIndex-1) + "," + count;
+//        return em.createNativeQuery(sql, "DataInfoMapping").getResultList();
 
         //resultListToDataInfoList(dataList, dataInfoList);
         //return dataInfoList;
@@ -114,10 +141,40 @@ public class DataService {
 //	}
 
 	//获取某个用户及下属机构的病人信息和对应的数据信息，并根据条件过滤
+    //只获取病人信息，在需要的时候再获取数据信息
 	public List<PatientDataInfo> searchPatientDataInfo(int userID, DataSearchCondition searchCondition) {
         long beginTime1 = System.currentTimeMillis();
 		List<Integer> userIds = userService.getAllChildID(userID);
 		userIds.add(0, userID);
+
+		QPatient qPatient = QPatient.patient;
+
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (searchCondition != null) {
+            if (searchCondition.state != 5)
+                predicate.and(qPatient.handlestate.eq(searchCondition.state));
+            if (searchCondition.bednum != null && !searchCondition.bednum.isEmpty())
+                predicate.and(qPatient.bednumber.contains(searchCondition.bednum));
+            if (searchCondition.patientname != null && !searchCondition.patientname.isEmpty())
+                predicate.and(qPatient.name.contains(searchCondition.patientname));
+            if (searchCondition.departmentid != 0) {
+                predicate.and(qPatient.userid.eq(searchCondition.departmentid));
+            } else if (searchCondition.hospitalid != 0) {
+                List<Integer> userList = queryFactory.select(QUser.user.id).from(QUser.user)
+                        .where(QUser.user.parentuserid.eq(searchCondition.hospitalid))
+                        .fetch();
+                userList.add(searchCondition.hospitalid);
+                predicate.and(qPatient.userid.in(userList));
+            } else {
+                predicate.and(qPatient.userid.in(userIds));
+            }
+        }
+
+		queryFactory.selectFrom(qPatient)
+                    .where(predicate)
+                    .limit(searchCondition.patientcount)
+                    .orderBy(qPatient.id.desc())
+                    .fetch();
 
         List<PatientDataInfo> patientDataInfoList = new ArrayList<PatientDataInfo>();
 

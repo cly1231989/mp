@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -20,7 +19,7 @@ public class UserService {
 	//获取所有的上级用户的ID
 	public List<Integer> getAllParentID(int userID)
 	{			 
-		List<Integer> parentIDList = new ArrayList<Integer>();
+		List<Integer> parentIDList = new ArrayList<>();
 		GetParentID(userID, userRepository.findAll(), parentIDList);
 	    
 		return parentIDList;
@@ -51,7 +50,7 @@ public class UserService {
 	//获取下级用户信息
 	public Organization getSubDepartmentInfo(int userID) {
 		Organization selfinfo = new Organization();
-		List<Organization> subs = new ArrayList<Organization>();
+		List<Organization> subs = new ArrayList<>();
 				
 		User user = userRepository.getOne(userID);
 		
@@ -63,12 +62,8 @@ public class UserService {
 			return selfinfo;
 		}
 		
-		List<User> childlist = userRepository.findByParentuserid(userID);		
-		for(int i = 0; i < childlist.size(); i++)
-		{
-			int childID = childlist.get(i).getId();	
-			subs.add( getSubDepartmentInfo(childID) );
-		}
+		List<User> childlist = userRepository.findByParentuserid(userID);
+		childlist.forEach(childUser->subs.add( getSubDepartmentInfo(childUser.getId())));
 		
 		return selfinfo;
 	}
@@ -78,9 +73,9 @@ public class UserService {
 	}
 
 	//获取所有的下级用户ID
-	public List<Integer> getAllChildID(int userID)
+	List<Integer> getAllChildID(int userID)
 	{
-		List<Integer> childIDList = new ArrayList<Integer>();
+		List<Integer> childIDList = new ArrayList<>();
 		GetChildID(userID, userRepository.findAll(), childIDList);
 		return childIDList;
 	}
@@ -99,7 +94,7 @@ public class UserService {
 		}
 	}
 
-	public User getUser(Integer userid) {		
+	User getUser(Integer userid) {
 		return userRepository.findOne(userid);
 	}
 

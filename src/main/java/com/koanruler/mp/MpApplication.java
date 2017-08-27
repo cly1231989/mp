@@ -1,5 +1,6 @@
 package com.koanruler.mp;
 
+import com.koanruler.mp.entity.DataSearchCondition;
 import com.koanruler.mp.service.DataService;
 import com.koanruler.mp.service.RmpService;
 import com.koanruler.mp.service.TerminalService;
@@ -32,8 +33,11 @@ public class MpApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
-		terminalService.getAllTerminalInfo(1);
-		long n = dataService.getDataCount(1, "test");
+		terminalService.getAllTerminalInfo(2);
+		DataSearchCondition searchCondition = new DataSearchCondition();
+		searchCondition.setPatientname("test");
+		dataService.searchPatientDataInfo(2, searchCondition);
+		//long n = dataService.getDataCount(1, "test");
 		dataService.getOneGroupData(1, null, 1, 50);
 		Endpoint.publish("http://localhost:" + servicePort
 				+ "/mp/cxf/clientservice", rmpService );

@@ -3,51 +3,51 @@ package com.koanruler.mp.service;
 import com.koanruler.mp.entity.Patient;
 import com.koanruler.mp.entity.QPatient;
 import com.koanruler.mp.repository.PatientRepository;
-import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class PatientService {
-	@Autowired
-	private PatientRepository patientRepository;
-	
-	@PersistenceContext
-	private EntityManager em;
+    @Autowired
+    private PatientRepository patientRepository;
 
-	public Integer getCount(int userID, String patientName, boolean inhospital) {
-		return patientRepository.countByUseridAndNameAndState(userID, patientName, inhospital?1:0);
-	}
+    @PersistenceContext
+    private EntityManager em;
 
-	public List<Patient> getPatientsInfo(List<Integer> patientIDList) {
-		return patientRepository.findByIdIn(patientIDList);
-	}
+    @Autowired
+    private JPAQueryFactory queryFactory;
 
-	public List<Patient> getOneGroupPatientInfo(int userID, String patientName, boolean inhospital, int firstPatientIndex,
+    public Integer getCount(int userID, String patientName, boolean inhospital) {
+        return patientRepository.countByUseridAndNameAndState(userID, patientName, inhospital ? 1 : 0);
+    }
+
+    public List<Patient> getPatientsInfo(List<Integer> patientIDList) {
+        return patientRepository.findByIdIn(patientIDList);
+    }
+
+    public List<Patient> getOneGroupPatientInfo(int userID, String patientName, boolean inhospital, int firstPatientIndex,
                                                 int patientCount) {
 
-        BooleanExpression predicate = QPatient.patient.userid.eq(userID).and(QPatient.patient.state.eq(inhospital));
+        BooleanBuilder predicate = new BooleanBuilder();
+        predicate.and( QPatient.patient.userid.eq(userID).and(QPatient.patient.state.eq(inhospital)) );
         if (!patientName.isEmpty())
-            predicate = predicate.and(QPatient.patient.name.contains(patientName).or(QPatient.patient.bednumber.contains(patientName)));
+            predicate.and(QPatient.patient.name.contains(patientName).or(QPatient.patient.bednumber.contains(patientName)));
 
-        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
-        return queryFactory.selectFrom(QPatient.patient)
-                    .where(predicate)
-                    .offset(firstPatientIndex)
-                    .limit(patientCount)
-                    .fetch();
+        QueryResults results = queryFactory.selectFrom(QPatient.patient)
+                .where(predicate)
+                .offset(firstPatientIndex)
+                .limit(patientCount)
+                .fetchResults();
+
+        //results.getTotal():总数
+        return results.getResults();
 
 //		if(patientName.length() == 0)
 //		{
@@ -69,36 +69,35 @@ public class PatientService {
 //			q.setParameter("bed", patientName);
 //			return q.getResultList();
 //		}
-	}
+    }
 
-	public List<Patient> getAllPatientInfo(int userID) {
-		return patientRepository.findByUserid(userID);
-		
-	}
+    public List<Patient> getAllPatientInfo(int userID) {
+        return patientRepository.findByUserid(userID);
 
-	public List<Patient> searchPatient(String patientName) {
-		return patientRepository.findByNameContains(patientName);
-	}
+    }
 
-	public boolean addPatient(Patient patientInfo) {
-		patientRepository.save(patientInfo);
-		return true;
-	}
+    public List<Patient> searchPatient(String patientName) {
+        return patientRepository.findByNameContains(patientName);
+    }
 
-	public Patient getPatient(int patientID) {
-		return patientRepository.findOne(patientID);
-	}
+    public boolean addPatient(Patient patientInfo) {
+        patientRepository.save(patientInfo);
+        return true;
+    }
 
-	public List<Integer> getPatientIds(List<Integer> userIDList) {
-	    if(userIDList.size() == 0)
-	        return null;
+    public Patient getPatient(int patientID) {
+        return patientRepository.findOne(patientID);
+    }
 
-	    return patientRepository.getPatientIDByUseridIn(userIDList);
-	}
+    List<Integer> getPatientIds(List<Integer> userIDList) {
+        if (userIDList.size() == 0)
+            return null;
 
-    public List<Patient> getPatientsByUserId(List<Integer> userIDList, int count) {
-	    JPAQueryFactory queryFactory = new JPAQueryFactory(em);
-	    return queryFactory.selectFrom(QPatient.patient)
+        return patientRepository.getPatientIDByUseridIn(userIDList);
+    }
+
+    List<Patient> getPatientsByUserId(List<Integer> userIDList, int count) {
+        return queryFactory.selectFrom(QPatient.patient)
                 .where(QPatient.patient.userid.in(userIDList))
                 .orderBy(QPatient.patient.id.desc())
                 .limit(count)
@@ -112,7 +111,7 @@ public class PatientService {
 //        return query.getResultList();
     }
 
-    public void Save(Patient patient) {
-	    patientRepository.save(patient);
+    void Save(Patient patient) {
+        patientRepository.save(patient);
     }
 }

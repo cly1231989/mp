@@ -27,22 +27,25 @@ public class TerminalService {
 	@PersistenceContext
 	private EntityManager em;
 
+    @Autowired
+    private JPAQueryFactory queryFactory;
+
 	//获取某一用户及下级用户的终端绑定信息
 	public List<BindTerminalInfo> getAllTerminalInfo(int userID) {
 		List<Integer> userIDList = userService.getAllChildID(userID);
 		userIDList.add(userID);
 
-		List<BindTerminalInfo> bindTerminalInfoList = new ArrayList<BindTerminalInfo>();
-        List<BindTerminalInfo> bindTerminalInfoList1 = new ArrayList<BindTerminalInfo>();
+		List<BindTerminalInfo> bindTerminalInfoList = new ArrayList<>();
+        List<BindTerminalInfo> bindTerminalInfoList1 = new ArrayList<>();
 
-		JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         List<Tuple> result = queryFactory.select(QTerminal.terminal, QUser.user)
 					.from(QTerminal.terminal)
                     .join(QUser.user)
                     .on(QTerminal.terminal.userid.eq(QUser.user.id))
 					.leftJoin(QPatient.patient)
 					.on(QTerminal.terminal.patientid.eq(QPatient.patient.id))
-					.where(QTerminal.terminal.userid.in(userIDList))
+                    .orderBy(QTerminal.terminal.patientid.desc())
+					.where(QTerminal.terminal.deleteflag.eq(false).and(QTerminal.terminal.userid.in(userIDList)))
 					.fetch();
 
         for (Tuple row: result){
@@ -74,39 +77,37 @@ public class TerminalService {
 		Query query = em.createQuery(sql);
 		query.setParameter("userIDList", userIDList);
 		List<Terminal> terminalInfoList = query.getResultList();
-		
-		for(int i = 0; i < terminalInfoList.size(); i++){
-			Terminal terminal = terminalInfoList.get(i);
-			
+
+		terminalInfoList.forEach(terminal -> {
 			BindTerminalInfo bindTerminalInfo = new BindTerminalInfo();
 			bindTerminalInfo.setTerminal(terminal);
-			
+
 			PatientInfo patientinfo = new PatientInfo();
 			User user = userService.getUser( terminal.getUserid() );
 
 			if(user.getType() == 5){   //科室
 				patientinfo.setDepartment( user.getName() );
-				
-				int parentID = user.getParentuserid();				
-				user = userService.getUser(parentID);;
+
+				int parentID = user.getParentuserid();
+				user = userService.getUser(parentID);
 				patientinfo.setHospital(user.getName());
 			}else if(user.getType() == 4){   //医院
 				patientinfo.setDepartment("");
 				patientinfo.setHospital(user.getName());
 			}
-			
+
 			if(terminal.getPatientid() == 0){
 				patientinfo.setPatient(null);
 			}else{
 				Patient patient = patientService.getPatient( terminal.getPatientid() );
 				patientinfo.setPatient(patient);
 			}
-								
+
 			bindTerminalInfo.setPatientinfo(patientinfo);
 			bindTerminalInfoList.add(bindTerminalInfo);
-		}
+		});
 
-		return bindTerminalInfoList ;
+		return bindTerminalInfoList1;
 	}
 
 	public Terminal getTerminal(String terminalNum) {

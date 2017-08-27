@@ -114,10 +114,7 @@ public class RmpServiceImpl implements RmpService {
 
             System.out.println( "compress data time: " + (System.currentTimeMillis() - beginTime));
             return re;
-        } catch (JsonProcessingException e) {
-            logger.debug(e.getMessage());
-            return null;
-        } catch (UnsupportedEncodingException e) {
+        } catch (JsonProcessingException|UnsupportedEncodingException e) {
             logger.debug(e.getMessage());
             return null;
         }
