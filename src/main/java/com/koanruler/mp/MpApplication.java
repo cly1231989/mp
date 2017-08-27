@@ -36,6 +36,7 @@ public class MpApplication implements CommandLineRunner {
 		terminalService.getAllTerminalInfo(2);
 		DataSearchCondition searchCondition = new DataSearchCondition();
 		searchCondition.setPatientname("test");
+        searchCondition.setPatientcount(10);
 		dataService.searchPatientDataInfo(2, searchCondition);
 		//long n = dataService.getDataCount(1, "test");
 		dataService.getOneGroupData(1, null, 1, 50);

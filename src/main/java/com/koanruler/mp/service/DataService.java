@@ -170,7 +170,7 @@ public class DataService {
             }
         }
 
-		queryFactory.selectFrom(qPatient)
+		List<Patient> result = queryFactory.selectFrom(qPatient)
                     .where(predicate)
                     .limit(searchCondition.patientcount)
                     .orderBy(qPatient.id.desc())
