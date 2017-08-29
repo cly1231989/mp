@@ -18,7 +18,30 @@ public class SimplePatientInfo {
 	private int handleUserID;
 	private int handleState;
 	private String state;
-	
+
+	public SimplePatientInfo() {
+	}
+
+	public SimplePatientInfo(int id, String name, String age, String sex, String bednum, String birthday, String outpatientnumber, String hospitalnumber, String hospital, String department, String symptom, String handlebegintime, String begintime, String endtime, int handleUserID, int handleState, String state) {
+		this.id = id;
+		this.name = name;
+		this.age = age;
+		this.sex = sex;
+		this.bednum = bednum;
+		this.birthday = birthday;
+		this.outpatientnumber = outpatientnumber;
+		this.hospitalnumber = hospitalnumber;
+		this.hospital = hospital;
+		this.department = department;
+		this.symptom = symptom;
+		this.handlebegintime = handlebegintime;
+		this.begintime = begintime;
+		this.endtime = endtime;
+		this.handleUserID = handleUserID;
+		this.handleState = handleState;
+		this.state = state;
+	}
+
 	public int getHandleUserID() {
 		return handleUserID;
 	}

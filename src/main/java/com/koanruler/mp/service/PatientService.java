@@ -6,6 +6,7 @@ import com.koanruler.mp.repository.PatientRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +19,17 @@ public class PatientService {
     @Autowired
     private PatientRepository patientRepository;
 
-    @PersistenceContext
-    private EntityManager em;
-
     @Autowired
     private JPAQueryFactory queryFactory;
 
-    public Integer getCount(int userID, String patientName, boolean inhospital) {
-        return patientRepository.countByUseridAndNameAndState(userID, patientName, inhospital ? 1 : 0);
+    public long getCount(int userID, String patientName, boolean inhospital) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        predicate.and(QPatient.patient.userid.eq(userID)).and(QPatient.patient.state.eq(inhospital));
+        if (patientName != null && !patientName.isEmpty())
+            predicate.and(QPatient.patient.name.contains(patientName));
+
+        return queryFactory.selectFrom(QPatient.patient).where(predicate).fetchCount();
+        //return patientRepository.countByUseridAndNameAndState(userID, patientName, inhospital);
     }
 
     public List<Patient> getPatientsInfo(List<Integer> patientIDList) {
@@ -48,27 +52,6 @@ public class PatientService {
 
         //results.getTotal():总数
         return results.getResults();
-
-//		if(patientName.length() == 0)
-//		{
-//			Query q = em.createNativeQuery("SELECT * FROM Patient p where p.userid=:id and p.state=:state LIMIT :fisrt, :count", Patient.class);
-//			q.setParameter("id", userID);
-//			q.setParameter("state", inhospital?1:0);
-//			q.setParameter("fisrt", firstPatientIndex-1);
-//			q.setParameter("count", patientCount);
-//			return q.getResultList();
-//		}
-//		else
-//		{
-//			Query q = em.createNativeQuery("SELECT * FROM Patient p where p.userid=:id and p.state=:state and (p.name LIKE %:name% or p.bednumber LIKE %:bed%) LIMIT :fisrt, :count", Patient.class);
-//			q.setParameter("id", userID);
-//			q.setParameter("state", inhospital?1:0);
-//			q.setParameter("fisrt", firstPatientIndex-1);
-//			q.setParameter("count", patientCount);
-//			q.setParameter("name", patientName);
-//			q.setParameter("bed", patientName);
-//			return q.getResultList();
-//		}
     }
 
     public List<Patient> getAllPatientInfo(int userID) {
@@ -102,13 +85,6 @@ public class PatientService {
                 .orderBy(QPatient.patient.id.desc())
                 .limit(count)
                 .fetch();
-//        String sql = "select p From Patient p WHERE (p.userid in :userIDList) and exists (select 1 from Data d where d.patientid = p.id and d.endtime <> '0000-00-00 00:00:00') order by p.id DESC";
-//
-//        Query query = em.createQuery(sql);
-//        query.setParameter("userIDList", userIDList);
-//        query.setFirstResult(0).setMaxResults(count);
-//
-//        return query.getResultList();
     }
 
     void Save(Patient patient) {

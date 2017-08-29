@@ -13,9 +13,6 @@ import java.util.List;
 public class SubfacilityService {
 	@Autowired
 	private SubfacilityRepository subfacilityRepository;
-	
-	@PersistenceContext
-	private EntityManager em;
 
 	public List<Subfacilities> getAllDepartmentInfo(int userID) {
 		return subfacilityRepository.findByUseridAndType(userID, 1);

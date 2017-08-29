@@ -19,4 +19,5 @@ public interface DataRepository extends JpaRepository<Data, Integer>, QueryDslPr
     Long getDataCountByUsers(@Param("patientIDList") List<Integer> patientIDList);
 
     List<Data> findByPatientidAndType(int patientID, int type);
+    List<Data> findByPatientidAndTypeOrderByIdDesc(int patientID, int type);
 }

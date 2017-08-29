@@ -20,12 +20,6 @@ public class TerminalService {
 	
 	@Autowired
 	private UserService userService;
-	
-	@Autowired
-	private PatientService patientService;
-	
-	@PersistenceContext
-	private EntityManager em;
 
     @Autowired
     private JPAQueryFactory queryFactory;
@@ -35,10 +29,9 @@ public class TerminalService {
 		List<Integer> userIDList = userService.getAllChildID(userID);
 		userIDList.add(userID);
 
-		List<BindTerminalInfo> bindTerminalInfoList = new ArrayList<>();
-        List<BindTerminalInfo> bindTerminalInfoList1 = new ArrayList<>();
+        List<BindTerminalInfo> bindTerminalInfoList = new ArrayList<>();
 
-        List<Tuple> result = queryFactory.select(QTerminal.terminal, QUser.user)
+        List<Tuple> result = queryFactory.select(QTerminal.terminal, QUser.user, QPatient.patient)
 					.from(QTerminal.terminal)
                     .join(QUser.user)
                     .on(QTerminal.terminal.userid.eq(QUser.user.id))
@@ -54,6 +47,7 @@ public class TerminalService {
             Patient patient = row.get(QPatient.patient);
 
             PatientInfo patientinfo = new PatientInfo();
+            patientinfo.setPatient(patient);
             BindTerminalInfo bindTerminalInfo = new BindTerminalInfo();
             bindTerminalInfo.setTerminal(terminal);
             bindTerminalInfo.setPatientinfo(patientinfo);
@@ -70,44 +64,10 @@ public class TerminalService {
                 bindTerminalInfo.getPatientinfo().setHospital(user.getName());
             }
 
-            bindTerminalInfoList1.add(bindTerminalInfo);
+            bindTerminalInfoList.add(bindTerminalInfo);
         }
-		
-		String sql = "select t From Terminal t WHERE (t.userid in :userIDList) and t.deleteflag <> true order by t.patientid desc";
-		Query query = em.createQuery(sql);
-		query.setParameter("userIDList", userIDList);
-		List<Terminal> terminalInfoList = query.getResultList();
 
-		terminalInfoList.forEach(terminal -> {
-			BindTerminalInfo bindTerminalInfo = new BindTerminalInfo();
-			bindTerminalInfo.setTerminal(terminal);
-
-			PatientInfo patientinfo = new PatientInfo();
-			User user = userService.getUser( terminal.getUserid() );
-
-			if(user.getType() == 5){   //科室
-				patientinfo.setDepartment( user.getName() );
-
-				int parentID = user.getParentuserid();
-				user = userService.getUser(parentID);
-				patientinfo.setHospital(user.getName());
-			}else if(user.getType() == 4){   //医院
-				patientinfo.setDepartment("");
-				patientinfo.setHospital(user.getName());
-			}
-
-			if(terminal.getPatientid() == 0){
-				patientinfo.setPatient(null);
-			}else{
-				Patient patient = patientService.getPatient( terminal.getPatientid() );
-				patientinfo.setPatient(patient);
-			}
-
-			bindTerminalInfo.setPatientinfo(patientinfo);
-			bindTerminalInfoList.add(bindTerminalInfo);
-		});
-
-		return bindTerminalInfoList1;
+		return bindTerminalInfoList;
 	}
 
 	public Terminal getTerminal(String terminalNum) {

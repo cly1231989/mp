@@ -37,7 +37,7 @@ public class MpApplication implements CommandLineRunner {
 		DataSearchCondition searchCondition = new DataSearchCondition();
 		searchCondition.setPatientname("test");
         searchCondition.setPatientcount(10);
-		dataService.searchPatientDataInfo(2, searchCondition);
+		dataService.searchReplayInfo1(2, searchCondition);
 		//long n = dataService.getDataCount(1, "test");
 		dataService.getOneGroupData(1, null, 1, 50);
 		Endpoint.publish("http://localhost:" + servicePort

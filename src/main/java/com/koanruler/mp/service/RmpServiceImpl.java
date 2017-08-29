@@ -49,6 +49,11 @@ public class RmpServiceImpl implements RmpService {
     }
 
     @Override
+    public String USER_GetUser(int userID) {
+        return new ServiceResult(true, userService.getUser(userID)).toJson();
+    }
+
+    @Override
     public String USER_GetSubDepartmentInfo(int userID) {
         return new ServiceResult(true, userService.getSubDepartmentInfo(userID) ).toJson();
     }
@@ -84,12 +89,6 @@ public class RmpServiceImpl implements RmpService {
     }
 
     @Override
-    public String DATA_SearchReplayInfo(int userID, String patientname, String bednum, int hospitalid, int departmentid, String begindate, String enddate, int type, int state, int minseconds, int patientcount) {
-        DataSearchCondition dataSearchCondition = new DataSearchCondition(patientname, bednum, hospitalid, departmentid, begindate, enddate, type, state, patientcount, minseconds);
-        return new ServiceResult(true, dataService.searchPatientDataInfo(userID, dataSearchCondition) ).toJson();
-    }
-
-    @Override
     public byte[] DATA_GetCompressedSearchReplayInfo(int userID, String patientname, String bednum, int hospitalid, int departmentid, String begindate, String enddate, int type, int state, int minseconds, int patientcount) {
         DataSearchCondition searchCondition = new DataSearchCondition(patientname, bednum, hospitalid, departmentid, begindate, enddate, type, state, patientcount, minseconds);
 
@@ -108,11 +107,9 @@ public class RmpServiceImpl implements RmpService {
             int compressedLength = compressor.compress(data, 0, decompressedLength, compressed, 0, maxCompressedLength);
 
             byte[] re = new byte[compressedLength];
-            for(int i = 0; i < compressedLength; i++)
-                re[i] = compressed[i];
+            System.arraycopy(compressed, 0, re, 0, compressedLength);
 
-
-            System.out.println( "compress data time: " + (System.currentTimeMillis() - beginTime));
+            logger.debug("compress data time: " + (System.currentTimeMillis() - beginTime));
             return re;
         } catch (JsonProcessingException|UnsupportedEncodingException e) {
             logger.debug(e.getMessage());
@@ -120,10 +117,10 @@ public class RmpServiceImpl implements RmpService {
         }
     }
 
-    @Override
-    public String DATA_GetOneGroupPatientInfo(int userID, int count, int minseconds) {
-        return new ServiceResult(true, dataService.getOneGroupPatientInfo(userID, count, minseconds) ).toJson();
-    }
+//    @Override
+//    public String DATA_GetOneGroupPatientInfo(int userID, int count, int minseconds) {
+//        return new ServiceResult(true, dataService.getOneGroupPatientInfo(userID, count, minseconds) ).toJson();
+//    }
 
     @Override
     public String DATA_GetPatientData(int patientID, int type) {
@@ -143,6 +140,12 @@ public class RmpServiceImpl implements RmpService {
     @Override
     public String Data_HasNewFileToDownload(int patientID, int datatype, long filelength) {
         return new ServiceResult(true, dataService.hasNewFileToDownload(patientID, datatype, filelength)).toJson();
+    }
+
+    @Override
+    public String Data_HasNewFileToDownload1(@WebParam(name="fileName") String fileName,
+                                      @WebParam(name="filelength") long filelength){
+        return new ServiceResult(true, dataService.hasNewFileToDownload(fileName, filelength)).toJson();
     }
 
     @Override

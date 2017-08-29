@@ -20,6 +20,9 @@ public interface RmpService {
     @WebMethod
     String USER_GetUserName(@WebParam(name = "userID") int userID);
 
+    @WebMethod
+    String USER_GetUser( @WebParam(name="userID") int userID );
+
     //获取所有下属机构的信息(id, type, name)
     @WebMethod
     String USER_GetSubDepartmentInfo(@WebParam(name = "userID") int userID);
@@ -56,21 +59,6 @@ public interface RmpService {
 
     /**************************************************************************/
     //获取某一用户及其下属机构的数据，并根据条件过滤
-    //will be deprecated because of efficiency
-    @WebMethod
-    String DATA_SearchReplayInfo(@WebParam(name = "userID") int userID,
-                                 @WebParam(name = "patientname") String patientname,
-                                 @WebParam(name = "bednum") String bednum,
-                                 @WebParam(name = "hospitalid") int hospitalid,
-                                 @WebParam(name = "departmentid") int departmentid,
-                                 @WebParam(name = "begindate") String begindate,
-                                 @WebParam(name = "enddate") String enddate,
-                                 @WebParam(name = "type") int type,
-                                 @WebParam(name = "state") int state,
-                                 @WebParam(name = "minseconds") int minseconds,
-                                 @WebParam(name = "patientcount") int patientcount);
-
-    //获取某一用户及其下属机构的数据，并根据条件过滤
     @WebMethod
     byte[] DATA_GetCompressedSearchReplayInfo(@WebParam(name = "userID") int userID,
                                               @WebParam(name = "patientname") String patientname,
@@ -84,11 +72,11 @@ public interface RmpService {
                                               @WebParam(name = "minseconds") int minseconds,
                                               @WebParam(name = "patientcount") int patientcount);
 
-    //获取某一用户及其下属机构的病人及对应数据
-    @WebMethod
-    String DATA_GetOneGroupPatientInfo(@WebParam(name = "userID") int userID,
-                                       @WebParam(name = "count") int count,
-                                       @WebParam(name = "minseconds") int minseconds);
+//    //获取某一用户及其下属机构的病人及对应数据
+//    @WebMethod
+//    String DATA_GetOneGroupPatientInfo(@WebParam(name = "userID") int userID,
+//                                       @WebParam(name = "count") int count,
+//                                       @WebParam(name = "minseconds") int minseconds);
 
     //获取某一病人的数据
     @WebMethod
@@ -113,6 +101,10 @@ public interface RmpService {
     String Data_HasNewFileToDownload(@WebParam(name = "patientID") int patientID,
                                      @WebParam(name = "datatype") int datatype,
                                      @WebParam(name = "filelength") long filelength);
+
+    @WebMethod
+    String Data_HasNewFileToDownload1(@WebParam(name="fileName") String fileName,
+                                      @WebParam(name="filelength") long filelength);
 
     /**************************************************************************/
     //双佳打印报告

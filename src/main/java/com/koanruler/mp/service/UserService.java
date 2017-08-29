@@ -7,6 +7,7 @@ import com.koanruler.mp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +49,7 @@ public class UserService {
 	}
 
 	//获取下级用户信息
+	@Transactional
 	public Organization getSubDepartmentInfo(int userID) {
 		Organization selfinfo = new Organization();
 		List<Organization> subs = new ArrayList<>();

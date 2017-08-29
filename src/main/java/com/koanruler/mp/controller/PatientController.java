@@ -15,7 +15,7 @@ public class PatientController {
 	@Autowired
 	private PatientService patientService;
 	
-	public Integer getCount(@WebParam(name="userID") int userID, @WebParam(name="patientName")String patientName, @WebParam(name="inhospital")boolean inhospital)
+	public long getCount(@WebParam(name="userID") int userID, @WebParam(name="patientName")String patientName, @WebParam(name="inhospital")boolean inhospital)
 	{
 		return patientService.getCount(userID, patientName, inhospital);
 	}

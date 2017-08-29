@@ -14,12 +14,12 @@ import java.util.List;
 @Repository
 public interface PatientRepository extends PagingAndSortingRepository<Patient, Integer>, QueryDslPredicateExecutor<Patient> {
 
-	Integer countByUseridAndNameAndState(int userID, String patientName, int inhospital);
+	Integer countByUseridAndNameAndState(int userID, String patientName, boolean inHospital);
 
 	Patient findById(int patientID);
 	List<Patient> findByIdIn(List<Integer> patientIDList);
 
-	List<Patient> findByIdAndNameAndState(int userID, String patientName, int i);
+	List<Patient> findByIdAndNameAndState(int userID, String patientName, boolean inHospital);
 
 	List<Patient> findByUserid(int userID);
 	List<Patient> findByNameContains(String name);
