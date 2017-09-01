@@ -33,13 +33,13 @@ public class MpApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
-		terminalService.getAllTerminalInfo(2);
-		DataSearchCondition searchCondition = new DataSearchCondition();
-		searchCondition.setPatientname("test");
-        searchCondition.setPatientcount(10);
-		dataService.searchReplayInfo1(2, searchCondition);
-		//long n = dataService.getDataCount(1, "test");
-		dataService.getOneGroupData(1, null, 1, 50);
+//		terminalService.getAllTerminalInfo(2);
+//		DataSearchCondition searchCondition = new DataSearchCondition();
+//		searchCondition.setPatientname("test");
+//        searchCondition.setPatientcount(10);
+//		dataService.searchReplayInfo1(2, searchCondition);
+//		//long n = dataService.getDataCount(1, "test");
+//		dataService.getOneGroupData(1, null, 1, 50);
 		Endpoint.publish("http://localhost:" + servicePort
 				+ "/mp/cxf/clientservice", rmpService );
 	}

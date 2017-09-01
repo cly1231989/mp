@@ -45,9 +45,9 @@ public interface RmpService {
                                           @WebParam(name = "inhospital") boolean inhospital,
                                           @WebParam(name = "firstPatientIndex") int firstPatientIndex,
                                           @WebParam(name = "patientCount") int patientCount);
-    //获取某一用户的所有病人信息
-    @WebMethod
-    String PATIENT_GetAllPatientInfo(@WebParam(name = "userID") int userID);
+//    //获取某一用户的所有病人信息
+//    @WebMethod
+//    String PATIENT_GetAllPatientInfo(@WebParam(name = "userID") int userID);
 
     //添加病人
     @WebMethod

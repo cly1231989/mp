@@ -26,6 +26,9 @@ public class User {
 	private String createdate;
 	private Integer delflag;
 	private Integer version;
+	private Integer BPShowMode = 0;
+	private Boolean spo2Warning = true;
+	private Boolean BTWarning = true;
 
 	// Constructors
 
@@ -46,7 +49,9 @@ public class User {
 	/** full constructor */
 	public User(Integer parentuserid, String account, String pwd, String name,
 			Integer type, Integer right1, Integer right2, Integer right3,
-			Integer right4, String phone, String address, String createdate) {
+			Integer right4, String phone, String address, String createdate,
+			Integer delflag, Integer version, Integer BPShowMode, Boolean spo2Warning,
+			Boolean BTWarning) {
 		this.parentuserid = parentuserid;
 		this.account = account;
 		this.pwd = pwd;
@@ -61,12 +66,18 @@ public class User {
 		this.createdate = createdate;
 		this.delflag = 0;
 		this.version = 0;
+		this.delflag = delflag;
+		this.version = version;
+		this.BPShowMode = BPShowMode;
+		this.spo2Warning = spo2Warning;
+		this.BTWarning = BTWarning;
 	}
 
 	public User(Integer id, Integer parentuserid, String account, String pwd,
 			String name, Integer type, Integer right1, Integer right2,
 			Integer right3, Integer right4, String phone, String address,
-			String createdate, Integer delflag, Integer version) {
+			String createdate, Integer delflag, Integer version, Integer BPShowMode,
+			Boolean spo2Warning, Boolean BTWarning) {
 		super();
 		this.id = id;
 		this.parentuserid = parentuserid;
@@ -83,6 +94,17 @@ public class User {
 		this.createdate = createdate;
 		this.delflag = delflag;
 		this.version = version;
+		this.BPShowMode = BPShowMode;
+		this.spo2Warning = spo2Warning;
+		this.BTWarning = BTWarning;
+	}
+
+	public User(User user) {
+		this(user.getId(), user.getParentuserid(), user.getAccount(), user.getPwd(),
+				user.getName(), user.getType(), user.getRight1(), user.getRight2(),
+				user.getRight3(), user.getRight4(), user.getPhone(), user.getAddress(),
+				user.getCreatedate(), user.getdelflag(), user.getVersion(), user.BPShowMode,
+				user.spo2Warning, user.getBTWarning());
 	}
 
 	public Integer getId() {
@@ -204,5 +226,37 @@ public class User {
 
 	public void setVersion(Integer version) {
 		this.version = version;
+	}
+
+	public Integer getDelflag() {
+		return delflag;
+	}
+
+	public void setDelflag(Integer delflag) {
+		this.delflag = delflag;
+	}
+
+	public Integer getBPShowMode() {
+		return BPShowMode;
+	}
+
+	public void setBPShowMode(Integer BPShowMode) {
+		this.BPShowMode = BPShowMode;
+	}
+
+	public Boolean getSpo2Warning() {
+		return spo2Warning;
+	}
+
+	public void setSpo2Warning(Boolean spo2Warning) {
+		this.spo2Warning = spo2Warning;
+	}
+
+	public Boolean getBTWarning() {
+		return BTWarning;
+	}
+
+	public void setBTWarning(Boolean BTWarning) {
+		this.BTWarning = BTWarning;
 	}
 }

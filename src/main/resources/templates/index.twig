@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+    <title>多参数管理系统</title>
+
+    <link href="css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="css/main-min.css" rel="stylesheet" type="text/css" />
+    <link href="css/jquery-ui.min.css" rel="stylesheet">
+    <script type="text/javascript" src="js/jquery-1.8.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/bui-min.js"></script>
+    <script type="text/javascript" src="js/common/main-min.js"></script>
+
+</head>
+    <body>
+        <div class="header">
+            <div class="dl-title">
+                <!--<img src="/chinapost/Public/assets/img/top.png">-->
+            </div>
+
+            <div class="dl-log">欢迎您: <span class="dl-log-user">{{ username }}</span><a href="#" id="create-user"  title="修改密码" class="dl-log-quit">[修改密码]</a><a href="/logout" title="退出系统" class="dl-log-quit">[退出]</a>
+            </div>
+        </div>
+        <div class="content">
+            <div class="dl-main-nav">
+                <div class="dl-inform"><div class="dl-inform-title"><s class="dl-inform-icon dl-up"></s></div></div>
+                <ul id="J_Nav"  class="nav-list ks-clear">
+                    <li class="nav-item dl-selected"><div class="nav-item-inner nav-home">系统管理</div></li>
+                </ul>
+            </div>
+            <ul id="J_NavContent" class="dl-tab-conten">
+
+            </ul>
+        </div>
+
+        <div id="dialog-form" title="修改密码">
+            <p class="validateTips"></p>
+
+            <form id="modifypwdform">
+                <fieldset>
+                    <label for="oldpwd">旧密码</label>
+                    <input type="password" name="oldpwd" id="oldpwd" class="text ui-widget-content ui-corner-all">
+                    <label for="newpwd">新密码</label>
+                    <input type="password" name="newpwd" id="newpwd" value="" class="text ui-widget-content ui-corner-all">
+                    <label for="newpwd2">再次确认密码</label>
+                    <input type="password" name="newpwd2" id="newpwd2" value="" class="text ui-widget-content ui-corner-all">
+                </fieldset>
+            </form>
+        </div>
+    </body>
+
+<script>
+    BUI.use('js/common/main',function(){
+    	$.post("/user/type", function(data){
+		   if(data.type >= 5){
+		   		var config = [{id:'manage', homePage:'patient', menu:[{text:'系统管理',items:[        												           												   
+        												   {id:'terminal',text:'终端管理',href:'/terminal/index'},
+        												   {id:'terminalbind',text:'终端使用',href:'/terbind/index'},
+        												   {id:'patient',text:'病人列表',href:'/patient/index'},
+        												   {id:'data',text:'数据列表',href:'/data/index'}
+        												   ]}]}];
+		   }else{
+		   		var config = [{id:'manage', homePage:'patient', menu:[{text:'系统管理',items:[        												   
+        												   {id:'user',text:'用户管理',href:'/user/index'},
+        												   {id:'terminal',text:'终端管理',href:'/terminal/index'},
+        												   {id:'terminalbind',text:'终端使用',href:'/terbind/index'},
+        												   {id:'patient',text:'病人列表',href:'/patient/index'},
+        												   {id:'data',text:'数据列表',href:'/data/index'}
+        												   ]}]}];
+		   }
+		   
+		   new PageUtil.MainPage({
+            modulesConfig : config
+        	});
+		});             
+    });
+    
+    $(function() {
+    var oldpwd = $( "#oldpwd" ),
+      newpwd = $( "#newpwd" ),
+      newpwd2 = $( "#newpwd2" ),
+      allFields = $( [] ).add( oldpwd ).add( newpwd ).add( newpwd2 ),
+      tips = $( ".validateTips" );
+ 
+    function updateTips( t ) {
+      tips
+        .text( t )
+        .addClass( "ui-state-highlight" );
+      setTimeout(function() {
+        tips.removeClass( "ui-state-highlight", 1500 );
+      }, 500 );
+    }
+ 
+    function checkLength( o, n, min, max ) {
+      if ( o.val().length > max || o.val().length < min ) {
+        o.addClass( "ui-state-error" );
+        updateTips( "" + n + " 的长度必须在 " +
+          min + " 和 " + max + " 之间。" );
+        return false;
+      } else {
+        return true;
+      }
+    }
+ 
+    function checkRegexp( o, regexp, n ) {
+      if ( !( regexp.test( o.val() ) ) ) {
+        o.addClass( "ui-state-error" );
+        updateTips( n );
+        return false;
+      } else {
+        return true;
+      }
+    }
+	
+	function checkNullLength( o, n) {
+      if ( o.val().length == 0 ) {
+        o.addClass( "ui-state-error" );
+        updateTips( "请输入" + n);
+        return false;
+      } else {
+        return true;
+      }
+    }
+	
+	function checkEqual( o1, o2, n) {
+      if ( o1.val() != o2.val() ) {
+        o1.addClass( "ui-state-error" );
+		o2.addClass( "ui-state-error" );
+        updateTips(n);
+        return false;
+      } else {
+        return true;
+      }
+    }
+ 
+    $( "#dialog-form" ).dialog({
+      autoOpen: false,
+      height: 400,
+      width: 420,
+      modal: true,
+      buttons: {
+        "确定": function() {
+          var bValid = true;
+          allFields.removeClass( "ui-state-error" );
+ 
+          bValid = bValid && checkNullLength( oldpwd, "旧密码");
+          bValid = bValid && checkLength( newpwd, "新密码", 1, 16 );
+          bValid = bValid && checkLength( newpwd2, "新密码", 1, 16 );
+		  bValid = bValid && checkEqual( newpwd, newpwd2, "两次输入不一致，请重新输入.");
+		  if(!bValid)
+			  return;
+		  
+		  $.ajax({
+				type: "POST",
+				url: '/user/modifypwd',
+				data: $('#modifypwdform').serialize(),  
+				success: function(data){
+					if(data.result == "relogin"){
+						alert("请重新登录后再进行操作"); 
+						top.location="/logout";
+						return;
+					}
+					else if(data.result == "success"){
+						$( "#dialog-form" ).dialog( "close" );
+						alert('修改成功');
+					}else if(data.result == "oldpwderror"){
+						updateTips('旧密码错误，请重新输入');
+						oldpwd.addClass( "ui-state-error" );
+					}
+					else{
+						alert('修改失败');
+					}					 
+				}
+			});
+        },
+        "取消": function() {
+          $( this ).dialog( "close" );
+        }
+      },
+      close: function() {
+        allFields.val( "" ).removeClass( "ui-state-error" );
+      }
+    });
+ 
+    $( "#create-user" ).click(function(e){
+		e.preventDefault();
+		$(".validateTips").text("")
+        $( "#dialog-form" ).dialog( "open" );
+      });
+  });
+</script>
+
+</html>

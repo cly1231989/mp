@@ -108,4 +108,8 @@ public class UserService {
 	public List<User> getAllUser(List<Integer> userIDList) {
 		return userRepository.findByIdIn(userIDList);
 	}
+
+    public User getUserById(Integer userId) {
+		return userRepository.findOne(userId);
+    }
 }
