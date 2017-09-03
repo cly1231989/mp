@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, Integer>, QueryDslPr
 
 	public List<User> findByParentuserid(int userID);
 
-	public User findByAccount(String account);
+	public Optional<User> findByAccount(String account);
 
 	List<User> findByType(int type);
 
