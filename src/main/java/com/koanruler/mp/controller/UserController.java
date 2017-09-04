@@ -50,7 +50,7 @@ public class UserController {
 	{
 		Integer userId = (Integer) model.get("userId");
 		userId = 3;
-		Map<String, Integer> result = new HashMap<>();;
+		Map<String, Integer> result = new HashMap<>();
 		result.put("type", userService.getUserById(userId).getType());
 		return result;
 	}

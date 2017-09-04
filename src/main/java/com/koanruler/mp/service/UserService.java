@@ -4,12 +4,15 @@ import com.koanruler.mp.entity.Organization;
 import com.koanruler.mp.entity.User;
 import com.koanruler.mp.entity.UserIDAndName;
 import com.koanruler.mp.repository.UserRepository;
+import jdk.nashorn.internal.runtime.options.Option;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -71,7 +74,9 @@ public class UserService {
 	}
 
 	public Boolean login(String account, String pwd) {
-		return userRepository.findByAccount(account).getPwd().equals(pwd);
+		Optional<User> optionalUser = userRepository.findByAccount(account);
+		optionalUser.orElseThrow(() -> new UsernameNotFoundException("user name not found"));
+		return optionalUser.get().getPwd().equals(pwd);
 	}
 
 	//获取所有的下级用户ID
