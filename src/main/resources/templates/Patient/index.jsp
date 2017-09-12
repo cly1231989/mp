@@ -20,23 +20,23 @@
     <%--<script type="text/javascript" src="static/js/ckform.js"></script>--%>
     <%--<script type="text/javascript" src="static/js/common.js"></script>--%>
     	
-    <style type="text/css">
-        body {
-            padding-bottom: 40px;
-        }
-        .sidebar-nav {
-            padding: 9px 0;
-        }
+    <%--<style type="text/css">--%>
+        <%--body {--%>
+            <%--padding-bottom: 40px;--%>
+        <%--}--%>
+        <%--.sidebar-nav {--%>
+            <%--padding: 9px 0;--%>
+        <%--}--%>
 
-        @media (max-width: 980px) {
-            /* Enable use of floated navbar text */
-            .navbar-text.pull-right {
-                float: none;
-                padding-left: 5px;
-                padding-right: 5px;
-            }
-        }
-    </style>
+        <%--@media (max-width: 980px) {--%>
+            <%--/* Enable use of floated navbar text */--%>
+            <%--.navbar-text.pull-right {--%>
+                <%--float: none;--%>
+                <%--padding-left: 5px;--%>
+                <%--padding-right: 5px;--%>
+            <%--}--%>
+        <%--}--%>
+    <%--</style>--%>
 </head>
 <body>
 <div class="form-inline definewidth m20">
@@ -93,7 +93,7 @@
     	function searchPatients(name, pageth, rows){
     		$.ajax({
 				type: "POST",			
-				url: 'mp/patient/page',  
+				url: 'patient/page',
 				data: {"patientname":name, "page":pageth, "rows":rows, "sord":"desc"},//$('#searchcondition').serialize(),  
 				error: function(){alert('搜索失败');},  
 				success: function(data){ 
@@ -101,7 +101,7 @@
 					var jsonData = eval("("+data+")");
 					if(jsonData.result == "relogin"){
 						alert("请重新登录后再进行操作"); 
-						top.location="/mp/logout"; 
+						top.location="/logout";
 						return;
 					}
 					

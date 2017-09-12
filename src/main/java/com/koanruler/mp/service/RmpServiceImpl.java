@@ -70,7 +70,7 @@ public class RmpServiceImpl implements RmpService {
 
     @Override
     public String PATIENT_GetOneGroupPatientInfo(int userID, String patientName, boolean inhospital, int firstPatientIndex, int patientCount) {
-        return new ServiceResult(true, patientService.getOneGroupPatientInfo(userID, patientName, inhospital, firstPatientIndex, patientCount)).toJson();
+        return new ServiceResult(true, patientService.getOneGroupPatientInfo(userID, patientName, inhospital, firstPatientIndex, patientCount, false)).toJson();
     }
 
 //    @Override

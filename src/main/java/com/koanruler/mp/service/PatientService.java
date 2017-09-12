@@ -8,6 +8,8 @@ import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -33,7 +35,8 @@ public class PatientService {
     }
 
     public List<Patient> getOneGroupPatientInfo(int userID, String patientName, boolean inhospital, int firstPatientIndex,
-                                                int patientCount) {
+                                                int patientCount, boolean findSubordinate) {
+        List<Integer> userIds = new LinkedList<>();
 
         BooleanBuilder predicate = new BooleanBuilder();
         predicate.and( QPatient.patient.userid.eq(userID).and(QPatient.patient.state.eq(inhospital)) );

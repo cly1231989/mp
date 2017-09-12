@@ -1,12 +1,19 @@
 package com.koanruler.mp.controller;
 
 import com.koanruler.mp.entity.Patient;
+import com.koanruler.mp.entity.PatientInfo;
+import com.koanruler.mp.entity.PatientSearchCondition;
+import com.koanruler.mp.entity.User;
 import com.koanruler.mp.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.jws.WebParam;
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -14,6 +21,32 @@ import java.util.List;
 public class PatientController {
 	@Autowired
 	private PatientService patientService;
+
+	@RequestMapping("/page")
+	public String searchPatient(@RequestBody PatientSearchCondition patientSearchCondition){
+
+		Integer[] totalCount = {0};
+
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List<Patient> patients = patientService.getOneGroupPatientInfo(user.getId(),
+											  patientSearchCondition.getPatientNameOrBedNum(),
+											  false,
+											  patientSearchCondition.getCountPerPage() * (patientSearchCondition.getPageth()-1),
+											  patientSearchCondition.getCountPerPage(),
+											  true);
+
+		List<PatientInfo> patientinfolist = new ArrayList<PatientInfo>();
+		for(Patient p: patients){
+			PatientInfo patientinfo = new PatientInfo();
+			patientinfo.setPatient(p);
+			patientinfo.setUsername( userService.getFullName(p.getUserid()) );
+			patientinfolist.add(patientinfo);
+		}
+
+		int totalPage = totalCount[0]/rows;
+		if(totalCount[0]%rows != 0)
+			totalPage++;
+	}
 	
 	public long getCount(@WebParam(name="userID") int userID, @WebParam(name="patientName")String patientName, @WebParam(name="inhospital")boolean inhospital)
 	{
