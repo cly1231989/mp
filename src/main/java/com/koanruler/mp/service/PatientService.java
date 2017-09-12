@@ -1,6 +1,7 @@
 package com.koanruler.mp.service;
 
 import com.koanruler.mp.entity.Patient;
+import com.koanruler.mp.entity.PatientSearchCondition;
 import com.koanruler.mp.entity.QPatient;
 import com.koanruler.mp.repository.PatientRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -34,23 +35,25 @@ public class PatientService {
         return patientRepository.findByIdIn(patientIDList);
     }
 
-    public List<Patient> getOneGroupPatientInfo(int userID, String patientName, boolean inhospital, int firstPatientIndex,
-                                                int patientCount, boolean findSubordinate) {
-        List<Integer> userIds = new LinkedList<>();
+    public QueryResults getOneGroupPatientInfo(List<Integer> userIds, PatientSearchCondition patientSearchCondition, boolean findSubordinate) {
 
         BooleanBuilder predicate = new BooleanBuilder();
-        predicate.and( QPatient.patient.userid.eq(userID).and(QPatient.patient.state.eq(inhospital)) );
-        if (!patientName.isEmpty())
-            predicate.and(QPatient.patient.name.contains(patientName).or(QPatient.patient.bednumber.contains(patientName)));
+        predicate.and( QPatient.patient.userid.in(userIds) );
 
-        QueryResults results = queryFactory.selectFrom(QPatient.patient)
+        if (patientSearchCondition.getInHospitalStatus() == PatientSearchCondition.InHospitalStatus.inHospital)
+            predicate.and(QPatient.patient.state.eq(true));
+        else if (patientSearchCondition.getInHospitalStatus() == PatientSearchCondition.InHospitalStatus.outHospital)
+            predicate.and(QPatient.patient.state.eq(false));
+
+        if (!patientSearchCondition.getNameOrBedNum().isEmpty())
+            predicate.and(QPatient.patient.name.contains(patientSearchCondition.getNameOrBedNum())
+                    .or(QPatient.patient.bednumber.contains(patientSearchCondition.getNameOrBedNum())));
+
+        return queryFactory.selectFrom(QPatient.patient)
                 .where(predicate)
-                .offset(firstPatientIndex)
-                .limit(patientCount)
+                .offset(patientSearchCondition.getFirstIndex())
+                .limit(patientSearchCondition.getCount())
                 .fetchResults();
-
-        //results.getTotal():总数
-        return results.getResults();
     }
 
     public List<Patient> getAllPatientInfo(int userID) {

@@ -4,6 +4,7 @@ import com.koanruler.mp.entity.DataSearchCondition;
 import com.koanruler.mp.service.DataService;
 import com.koanruler.mp.service.RmpService;
 import com.koanruler.mp.service.TerminalService;
+import com.koanruler.mp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -22,6 +23,9 @@ public class MpApplication implements CommandLineRunner {
     private RmpService rmpService;
 
 	@Autowired
+	private UserService userService;
+
+	@Autowired
 	private DataService dataService;
 
 	@Autowired
@@ -33,6 +37,7 @@ public class MpApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
+		userService.getAllParentID(27);
 //		terminalService.getAllTerminalInfo(2);
 //		DataSearchCondition searchCondition = new DataSearchCondition();
 //		searchCondition.setPatientname("test");

@@ -1,18 +1,21 @@
 package com.koanruler.mp.service;
 
-import com.koanruler.mp.entity.Organization;
-import com.koanruler.mp.entity.User;
-import com.koanruler.mp.entity.UserIDAndName;
+import com.koanruler.mp.entity.*;
 import com.koanruler.mp.repository.UserRepository;
+import com.querydsl.core.Tuple;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import jdk.nashorn.internal.runtime.options.Option;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
+import java.util.stream.IntStream;
 
 @Service
 public class UserService {
@@ -20,31 +23,35 @@ public class UserService {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private JPAQueryFactory queryFactory;
+
+	private List<User> users;
+	private LocalDateTime time;
+
 	//获取所有的上级用户的ID
 	public List<Integer> getAllParentID(int userID)
-	{			 
-		List<Integer> parentIDList = new ArrayList<>();
-		GetParentID(userID, userRepository.findAll(), parentIDList);
-	    
-		return parentIDList;
-	}
-	
-	private void GetParentID(int userID, List<User> users, List<Integer> parentIDList)
 	{
-		for(int i = 0; i < users.size(); i++)
-		{
-			User user = users.get(i);
-			int id = user.getId();						
-			if(userID == id)
-			{
-				if(user.getParentuserid() == 0)
-					break;
-				
-				parentIDList.add(user.getParentuserid());
-				GetParentID(user.getParentuserid(), users, parentIDList);
-				break;
-			}
-		}
+		QUser user1 = QUser.user;
+		QUser user2 = new QUser("user2");
+		QUser user3 = new QUser("user3");;
+		QUser user4 = new QUser("user4");;
+		QUser user5 = new QUser("user5");;
+		QUser user6 = new QUser("user6");;
+		QUser user7 = new QUser("user7");;
+
+		List<Tuple> results = queryFactory.select(user1.id, user2.id, user3.id, user4.id, user5.id, user6.id, user7.id)
+				.from(user1)
+				.leftJoin(user2).on(user1.parentuserid.eq(user2.id))
+				.leftJoin(user3).on(user2.parentuserid.eq(user3.id))
+				.leftJoin(user4).on(user3.parentuserid.eq(user4.id))
+				.leftJoin(user5).on(user4.parentuserid.eq(user5.id))
+				.leftJoin(user6).on(user5.parentuserid.eq(user6.id))
+				.leftJoin(user7).on(user6.parentuserid.eq(user7.id))
+				.where(user1.id.eq(userID))
+				.fetch();
+
+        return intTupleToList(results);
 	}
 
 	public String getUserName(int userID) {		
@@ -79,26 +86,44 @@ public class UserService {
 		return optionalUser.get().getPwd().equals(pwd);
 	}
 
+	private List<Integer> intTupleToList(List<Tuple> tuple){
+        List<Integer> list = new ArrayList<>();
+
+        for (Tuple row: tuple){
+            for (int i = 0; i < row.size(); i++) {
+                Integer id = row.get(i, Integer.class);
+                if (id != null)
+                    list.add(id);
+            }
+        }
+
+        return list;
+    }
+
 	//获取所有的下级用户ID
 	List<Integer> getAllChildID(int userID)
 	{
-		List<Integer> childIDList = new ArrayList<>();
-		GetChildID(userID, userRepository.findAll(), childIDList);
-		return childIDList;
-	}
-	
-	private void GetChildID(int parentID, List<User> users, List<Integer> childIDList)
-	{
-		for(int i = 0; i < users.size(); i++)
-		{		
-			User user = users.get(i);
-			
-			if(parentID == user.getParentuserid())
-			{
-				childIDList.add(user.getId());
-				GetChildID(user.getId(), users, childIDList);
-			}
-		}
+        QUser user1 = QUser.user;
+        QUser user2 = new QUser("user2");
+        QUser user3 = new QUser("user3");;
+        QUser user4 = new QUser("user4");;
+        QUser user5 = new QUser("user5");;
+        QUser user6 = new QUser("user6");;
+        QUser user7 = new QUser("user7");;
+
+        List<Tuple> results = queryFactory.select(user1.id, user2.id, user3.id, user4.id, user5.id, user6.id, user7.id)
+                .from(user1)
+                .leftJoin(user2).on(user1.id.eq(user2.parentuserid))
+                .leftJoin(user3).on(user2.id.eq(user3.parentuserid))
+                .leftJoin(user4).on(user3.id.eq(user4.parentuserid))
+                .leftJoin(user5).on(user4.id.eq(user5.parentuserid))
+                .leftJoin(user6).on(user5.id.eq(user6.parentuserid))
+                .leftJoin(user7).on(user6.id.eq(user7.parentuserid))
+                .where(user1.id.eq(userID))
+                .fetch();
+
+
+        return intTupleToList(results);
 	}
 
 	User getUser(Integer userid) {
@@ -116,5 +141,20 @@ public class UserService {
 
     public User getUserById(Integer userId) {
 		return userRepository.findOne(userId);
+    }
+
+    private List<User> getAllUsers(){
+	    if (users == null || LocalDateTime.now().minusMinutes(5).isAfter(time)){
+            users = userRepository.findAll();
+            time = LocalDateTime.now();
+        }
+
+        return users;
+    }
+
+    public String getFullName(Integer userid) {
+		List<User> users = getAllUsers();
+
+		return "";
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.koanruler.mp.entity.DataSearchCondition;
 import com.koanruler.mp.entity.Patient;
+import com.koanruler.mp.entity.PatientSearchCondition;
 import com.koanruler.mp.entity.ServiceResult;
 import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -70,7 +72,14 @@ public class RmpServiceImpl implements RmpService {
 
     @Override
     public String PATIENT_GetOneGroupPatientInfo(int userID, String patientName, boolean inhospital, int firstPatientIndex, int patientCount) {
-        return new ServiceResult(true, patientService.getOneGroupPatientInfo(userID, patientName, inhospital, firstPatientIndex, patientCount, false)).toJson();
+        PatientSearchCondition patientSearchCondition = new PatientSearchCondition(patientName,
+                                                                                   firstPatientIndex,
+                                                                                   patientCount,
+                                                                              true,
+                                                                                   inhospital ? PatientSearchCondition.InHospitalStatus.inHospital: PatientSearchCondition.InHospitalStatus.outHospital);
+
+        List userIds = Arrays.asList(userID);
+        return new ServiceResult(true, patientService.getOneGroupPatientInfo(userIds, patientSearchCondition, false).getResults()).toJson();
     }
 
 //    @Override

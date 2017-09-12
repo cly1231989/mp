@@ -4,43 +4,69 @@ package com.koanruler.mp.entity;
  * Created by hose on 2017/9/11.
  */
 public class PatientSearchCondition {
-    private String patientNameOrBedNum;
-    private int pageth;
-    private int countPerPage;
-    private boolean desc;
+    private String nameOrBedNum = "";
+    private int firstIndex = 0;
+    private long count = 30;
+    private boolean desc = true;
+    private InHospitalStatus inHospitalStatus = InHospitalStatus.all;
+
+    public enum InHospitalStatus{
+        inHospital, outHospital, all
+    }
 
     public PatientSearchCondition() {
     }
 
-    public String getPatientNameOrBedNum() {
-        return patientNameOrBedNum;
+    public PatientSearchCondition(String nameOrBedNum, int firstIndex, int count, boolean desc, InHospitalStatus inHospitalStatus) {
+        this.nameOrBedNum = nameOrBedNum;
+        this.firstIndex = firstIndex;
+        this.count = count;
+        this.desc = desc;
+        this.inHospitalStatus = inHospitalStatus;
     }
 
-    public void setPatientNameOrBedNum(String patientNameOrBedNum) {
-        this.patientNameOrBedNum = patientNameOrBedNum;
+    public String getNameOrBedNum() {
+        return nameOrBedNum;
     }
 
-    public int getPageth() {
-        return pageth;
+    public PatientSearchCondition setNameOrBedNum(String nameOrBedNum) {
+        this.nameOrBedNum = nameOrBedNum;
+        return this;
     }
 
-    public void setPageth(int pageth) {
-        this.pageth = pageth;
+    public int getFirstIndex() {
+        return firstIndex;
     }
 
-    public int getCountPerPage() {
-        return countPerPage;
+    public PatientSearchCondition setFirstIndex(int firstIndex) {
+        this.firstIndex = firstIndex;
+        return this;
     }
 
-    public void setCountPerPage(int countPerPage) {
-        this.countPerPage = countPerPage;
+    public long getCount() {
+        return count;
+    }
+
+    public PatientSearchCondition setCount(long count) {
+        this.count = count;
+        return this;
     }
 
     public boolean isDesc() {
         return desc;
     }
 
-    public void setDesc(boolean desc) {
+    public PatientSearchCondition setDesc(boolean desc) {
         this.desc = desc;
+        return this;
+    }
+
+    public InHospitalStatus getInHospitalStatus() {
+        return inHospitalStatus;
+    }
+
+    public PatientSearchCondition setInHospitalStatus(InHospitalStatus inHospitalStatus) {
+        this.inHospitalStatus = inHospitalStatus;
+        return this;
     }
 }
