@@ -11,15 +11,15 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
-    <%--<link rel="stylesheet" type="text/css" href="static/css/bootstrap.css" />--%>
-    <%--<link rel="stylesheet" type="text/css" href="static/css/bootstrap-responsive.css" />--%>
-    <%--<link rel="stylesheet" type="text/css" href="static/css/style.css" />--%>
-    <%--<script type="text/javascript" src="static/js/jquery.js"></script>--%>
-    <%--<script type="text/javascript" src="static/js/jquery.sorted.js"></script>--%>
-    <%--<script type="text/javascript" src="static/js/bootstrap.js"></script>--%>
-    <%--<script type="text/javascript" src="static/js/ckform.js"></script>--%>
-    <%--<script type="text/javascript" src="static/js/common.js"></script>--%>
-    	
+    <%--<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />--%>
+    <%--<link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.css" />--%>
+    <%--<link rel="stylesheet" type="text/css" href="css/style.css" />--%>
+    <%--<script type="text/javascript" src="js/jquery.js"></script>--%>
+    <%--<script type="text/javascript" src="js/jquery.sorted.js"></script>--%>
+    <%--<script type="text/javascript" src="js/bootstrap.js"></script>--%>
+    <%--<script type="text/javascript" src="js/ckform.js"></script>--%>
+    <%--<script type="text/javascript" src="js/common.js"></script>--%>
+
     <%--<style type="text/css">--%>
         <%--body {--%>
             <%--padding-bottom: 40px;--%>
@@ -94,21 +94,23 @@
     		$.ajax({
 				type: "POST",			
 				url: 'patient/page',
-				data: {"patientname":name, "page":pageth, "rows":rows, "sord":"desc"},//$('#searchcondition').serialize(),  
+				data: {"nameOrBedNum":name, "firstIndex":(pageth-1)*rows, "count":rows},//$('#searchcondition').serialize(),
 				error: function(){alert('搜索失败');},  
 				success: function(data){ 
 					var str = "";
-					var jsonData = eval("("+data+")");
-					if(jsonData.result == "relogin"){
-						alert("请重新登录后再进行操作"); 
-						top.location="/logout";
-						return;
-					}
+//					var jsonData = eval("("+data+")");
+//					if(jsonData.result == "relogin"){
+//						alert("请重新登录后再进行操作");
+//						top.location="/logout";
+//						return;
+//					}
 					
-					totalPage = jsonData.total;
-					var pageth = jsonData.page;
-					var totalCount = jsonData.records;
-					var patients = jsonData.rows;
+
+					var totalCount = data.totalCount;
+					var patients = data.patientInfo;
+                    totalPage = data.totalCount/rows;
+                    if (data.totalCount%rows != 0)
+                        totalPage += 1;
 					
 					$('#pageth').val(pageth);
 					$('#totalpagelabel').text(totalPage);

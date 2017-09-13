@@ -26,4 +26,7 @@ public class RootController {
     public String login(){
         return "login";
     }
+
+    @RequestMapping("/patient/index")
+    public String patientIndex(){ return "patient/index"; }
 }

@@ -11,10 +11,8 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
@@ -26,19 +24,19 @@ public class UserService {
 	@Autowired
 	private JPAQueryFactory queryFactory;
 
-	private List<User> users;
-	private LocalDateTime time;
+	private Map<Integer, String> allUserFullName = new HashMap();
+	private LocalDateTime getTime;
 
 	//获取所有的上级用户的ID
 	public List<Integer> getAllParentID(int userID)
 	{
 		QUser user1 = QUser.user;
 		QUser user2 = new QUser("user2");
-		QUser user3 = new QUser("user3");;
-		QUser user4 = new QUser("user4");;
-		QUser user5 = new QUser("user5");;
-		QUser user6 = new QUser("user6");;
-		QUser user7 = new QUser("user7");;
+		QUser user3 = new QUser("user3");
+		QUser user4 = new QUser("user4");
+		QUser user5 = new QUser("user5");
+		QUser user6 = new QUser("user6");
+		QUser user7 = new QUser("user7");
 
 		List<Tuple> results = queryFactory.select(user1.id, user2.id, user3.id, user4.id, user5.id, user6.id, user7.id)
 				.from(user1)
@@ -105,11 +103,11 @@ public class UserService {
 	{
         QUser user1 = QUser.user;
         QUser user2 = new QUser("user2");
-        QUser user3 = new QUser("user3");;
-        QUser user4 = new QUser("user4");;
-        QUser user5 = new QUser("user5");;
-        QUser user6 = new QUser("user6");;
-        QUser user7 = new QUser("user7");;
+        QUser user3 = new QUser("user3");
+        QUser user4 = new QUser("user4");
+        QUser user5 = new QUser("user5");
+        QUser user6 = new QUser("user6");
+        QUser user7 = new QUser("user7");
 
         List<Tuple> results = queryFactory.select(user1.id, user2.id, user3.id, user4.id, user5.id, user6.id, user7.id)
                 .from(user1)
@@ -143,18 +141,39 @@ public class UserService {
 		return userRepository.findOne(userId);
     }
 
-    private List<User> getAllUsers(){
-	    if (users == null || LocalDateTime.now().minusMinutes(5).isAfter(time)){
-            users = userRepository.findAll();
-            time = LocalDateTime.now();
-        }
-
-        return users;
-    }
-
     public String getFullName(Integer userid) {
-		List<User> users = getAllUsers();
+		if (allUserFullName.isEmpty() || LocalDateTime.now().minusMinutes(3).isAfter(getTime)){
+			getTime = LocalDateTime.now();
+			List<User> users = userRepository.findAll();
 
-		return "";
+			Map<Integer, User> userMap = new HashMap<>();
+			users.forEach(user1 -> userMap.put(user1.getId(), user1));
+
+			users.forEach(user -> {
+				List<User> parentUsers = getParentUser(user, userMap);
+
+				List<String> result = parentUsers.stream().map(user1 -> user1.getName()).collect(Collectors.toList());
+				allUserFullName.put(user.getId(), String.join("/", result));
+			});
+		}
+
+		return allUserFullName.get(userid);
     }
+
+	private List<User> getParentUser(User user, Map<Integer, User> userMap) {
+		List<User> parentUsers = new ArrayList<>();
+
+		parentUsers.add(0, user);
+		Integer parentId = user.getParentuserid();
+
+		while (parentId != null && parentId != 0){
+			User parentUser = userMap.get(parentId);
+			if (parentUser != null) {
+				parentUsers.add(0, parentUser);
+				parentId = parentUser.getParentuserid();
+			}
+		}
+
+		return parentUsers;
+	}
 }

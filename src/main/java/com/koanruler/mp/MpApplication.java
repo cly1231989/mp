@@ -37,7 +37,8 @@ public class MpApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
-		userService.getAllParentID(27);
+		userService.getFullName(27);
+		userService.getFullName(28);
 //		terminalService.getAllTerminalInfo(2);
 //		DataSearchCondition searchCondition = new DataSearchCondition();
 //		searchCondition.setPatientname("test");

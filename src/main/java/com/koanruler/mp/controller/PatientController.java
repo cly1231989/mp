@@ -1,9 +1,6 @@
 package com.koanruler.mp.controller;
 
-import com.koanruler.mp.entity.Patient;
-import com.koanruler.mp.entity.PatientInfo;
-import com.koanruler.mp.entity.PatientSearchCondition;
-import com.koanruler.mp.entity.User;
+import com.koanruler.mp.entity.*;
 import com.koanruler.mp.service.PatientService;
 import com.koanruler.mp.service.UserService;
 import com.querydsl.core.QueryResults;
@@ -28,7 +25,7 @@ public class PatientController {
     private UserService userService;
 
     @RequestMapping("/page")
-    public String searchPatient(@RequestBody PatientSearchCondition patientSearchCondition) {
+    public PatientSearchResult searchPatient(@RequestBody PatientSearchCondition patientSearchCondition) {
 
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         QueryResults results = patientService.getOneGroupPatientInfo(userService.getAllParentID(user.getId()),
@@ -37,19 +34,19 @@ public class PatientController {
 
         List<Patient> patients = results.getResults();
 
-        List<PatientInfo> patientinfolist = new ArrayList<PatientInfo>();
+        List<PatientInfo> patientInfolist = new ArrayList<PatientInfo>();
         for (Patient p : patients) {
             PatientInfo patientinfo = new PatientInfo();
             patientinfo.setPatient(p);
             patientinfo.setUsername(userService.getFullName(p.getUserid()));
-            patientinfolist.add(patientinfo);
+            patientInfolist.add(patientinfo);
         }
 
-        long totalPage = results.getTotal() / patientSearchCondition.getCount();
-        if (results.getTotal() % patientSearchCondition.getCount() != 0)
-            totalPage++;
+//        long totalPage = results.getTotal() / patientSearchCondition.getCount();
+//        if (results.getTotal() % patientSearchCondition.getCount() != 0)
+//            totalPage++;
 
-        return "";
+        return new PatientSearchResult(results.getTotal(), patientInfolist);
     }
 
     public long getCount(@WebParam(name = "userID") int userID, @WebParam(name = "patientName") String patientName, @WebParam(name = "inhospital") boolean inhospital) {
