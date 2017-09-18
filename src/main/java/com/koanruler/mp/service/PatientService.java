@@ -6,12 +6,13 @@ import com.koanruler.mp.entity.QPatient;
 import com.koanruler.mp.repository.PatientRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PatientService {
@@ -21,21 +22,11 @@ public class PatientService {
     @Autowired
     private JPAQueryFactory queryFactory;
 
-    public long getCount(int userID, String patientName, boolean inhospital) {
-        BooleanBuilder predicate = new BooleanBuilder();
-        predicate.and(QPatient.patient.userid.eq(userID)).and(QPatient.patient.state.eq(inhospital));
-        if (patientName != null && !patientName.isEmpty())
-            predicate.and(QPatient.patient.name.contains(patientName));
-
-        return queryFactory.selectFrom(QPatient.patient).where(predicate).fetchCount();
-        //return patientRepository.countByUseridAndNameAndState(userID, patientName, inhospital);
-    }
-
     public List<Patient> getPatientsInfo(List<Integer> patientIDList) {
         return patientRepository.findByIdIn(patientIDList);
     }
 
-    public QueryResults getOneGroupPatientInfo(List<Integer> userIds, PatientSearchCondition patientSearchCondition, boolean findSubordinate) {
+    public QueryResults<Patient> getOneGroupPatientInfo(List<Integer> userIds, PatientSearchCondition patientSearchCondition) {
 
         BooleanBuilder predicate = new BooleanBuilder();
         predicate.and( QPatient.patient.userid.in(userIds) );
@@ -49,25 +40,16 @@ public class PatientService {
             predicate.and(QPatient.patient.name.contains(patientSearchCondition.getNameOrBedNum())
                     .or(QPatient.patient.bednumber.contains(patientSearchCondition.getNameOrBedNum())));
 
+        OrderSpecifier orderSpecifier = QPatient.patient.id.asc();
+        if (patientSearchCondition.isDesc())
+            orderSpecifier = QPatient.patient.id.desc();
+
         return queryFactory.selectFrom(QPatient.patient)
                 .where(predicate)
                 .offset(patientSearchCondition.getFirstIndex())
                 .limit(patientSearchCondition.getCount())
+                .orderBy(orderSpecifier)
                 .fetchResults();
-    }
-
-    public List<Patient> getAllPatientInfo(int userID) {
-        return patientRepository.findByUserid(userID);
-
-    }
-
-    public List<Patient> searchPatient(String patientName) {
-        return patientRepository.findByNameContains(patientName);
-    }
-
-    public boolean addPatient(Patient patientInfo) {
-        patientRepository.save(patientInfo);
-        return true;
     }
 
     public Patient getPatient(int patientID) {
@@ -78,15 +60,10 @@ public class PatientService {
         if (userIDList.size() == 0)
             return null;
 
-        return patientRepository.getPatientIDByUseridIn(userIDList);
-    }
-
-    List<Patient> getPatientsByUserId(List<Integer> userIDList, int count) {
-        return queryFactory.selectFrom(QPatient.patient)
-                .where(QPatient.patient.userid.in(userIDList))
-                .orderBy(QPatient.patient.id.desc())
-                .limit(count)
-                .fetch();
+        return patientRepository.findByUseridIn(userIDList)
+                                .stream()
+                                .map(patient -> patient.getId())
+                                .collect(Collectors.toList());
     }
 
     void Save(Patient patient) {

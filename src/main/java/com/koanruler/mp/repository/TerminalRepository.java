@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TerminalRepository extends JpaRepository<Terminal, Integer>, QueryDslPredicateExecutor<Terminal>{
-	Terminal findByTerminalnumber(String terminalNum);
+	Terminal findByTerminalnumberAndDeleteflag(String terminalNum, boolean deleteFlag);
 }

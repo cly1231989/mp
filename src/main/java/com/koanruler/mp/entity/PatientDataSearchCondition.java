@@ -1,23 +1,23 @@
 package com.koanruler.mp.entity;
 
-public class DataSearchCondition {
-	public String patientname;
-	public String bednum;
-	public int hospitalid;
-	public int departmentid;
-	public String begindate;
-	public String enddate;
-	public int type;   //类型，搜索时不考虑它，如果没有相应类型的数据，在界面上提示用户，无数据。
-	public int state;
-	public int patientcount;
+public class PatientDataSearchCondition {
+	public String patientname = "";
+	public String bednum = "";
+	public int hospitalid = 0;
+	public int departmentid = 0;
+	public String begindate = "";
+	public String enddate = "";
+	public int type;   //数据类型，搜索时不考虑它，如果没有相应类型的数据，在界面上提示用户，无数据。
+	public int state;	//处理状态
+	public int patientcount;	//病人数量
 	public int minseconds;
 
-	public DataSearchCondition() {
+	public PatientDataSearchCondition() {
 	}
 
-	public DataSearchCondition(String patientname, String bednum,
-							   int hospitalid, int departmentid, String begindate, String enddate,
-							   int type, int state, int patientcount, int minseconds) {
+	public PatientDataSearchCondition(String patientname, String bednum,
+									  int hospitalid, int departmentid, String begindate, String enddate,
+									  int type, int state, int patientcount, int minseconds) {
 		super();
 		this.patientname = patientname;
 		this.bednum = bednum;

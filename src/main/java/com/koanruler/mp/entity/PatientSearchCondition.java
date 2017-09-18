@@ -4,11 +4,11 @@ package com.koanruler.mp.entity;
  * Created by hose on 2017/9/11.
  */
 public class PatientSearchCondition {
-    private String nameOrBedNum = "";
-    private int firstIndex = 0;
-    private long count = 30;
-    private boolean desc = true;
-    private InHospitalStatus inHospitalStatus = InHospitalStatus.all;
+    private String nameOrBedNum = "";   //病人姓名或者床号
+    private int firstIndex = 0;         //此次搜索的第一条记录的索引
+    private long count = 30;            //此次搜索的数量
+    private boolean desc = true;        //降序排列？
+    private InHospitalStatus inHospitalStatus = InHospitalStatus.all;   //搜索住院/出院/所有病人
 
     public enum InHospitalStatus{
         inHospital, outHospital, all
@@ -17,7 +17,7 @@ public class PatientSearchCondition {
     public PatientSearchCondition() {
     }
 
-    public PatientSearchCondition(String nameOrBedNum, int firstIndex, int count, boolean desc, InHospitalStatus inHospitalStatus) {
+    public PatientSearchCondition(String nameOrBedNum, int firstIndex, long count, boolean desc, InHospitalStatus inHospitalStatus) {
         this.nameOrBedNum = nameOrBedNum;
         this.firstIndex = firstIndex;
         this.count = count;

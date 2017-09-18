@@ -1,10 +1,10 @@
 package com.koanruler.mp.entity;
 
 public class PatientInfo {
+	String username;
 	String hospital;
 	String department;
 	Patient patient;
-	String username;
 	
 	public String getHospital() {
 		return hospital;

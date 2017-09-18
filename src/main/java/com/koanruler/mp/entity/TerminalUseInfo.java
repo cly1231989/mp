@@ -2,13 +2,23 @@ package com.koanruler.mp.entity;
 
 public class TerminalUseInfo {
 	private int userid;
-	private String username;
+	private String username;   //用户名，分层显示，比如中心1/医院1/科室1
 	private String patientname;
 	private String patientage;
 	private String patientsex;
 	private String terminalNum;
 	private String bindtime;
-	
+
+	public TerminalUseInfo(int userid, String username, String patientname, String patientage, String patientsex, String terminalNum, String bindtime) {
+		this.userid = userid;
+		this.username = username;
+		this.patientname = patientname;
+		this.patientage = patientage;
+		this.patientsex = patientsex;
+		this.terminalNum = terminalNum;
+		this.bindtime = bindtime;
+	}
+
 	public String getUsername() {
 		return username;
 	}

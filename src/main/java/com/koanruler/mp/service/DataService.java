@@ -5,8 +5,6 @@ import com.koanruler.mp.repository.DataRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -51,59 +49,77 @@ public class DataService {
 		return dataRepository.count();
 	}
 
-    //分页获取某个用户及其下属机构的病人的数据，并根据终端编号或者病人姓名进行过滤
-	public List<DataInfo> getOneGroupData(int userID, String terminalNumOrPatientName, int firstIndex, long count) {
-		List<Integer> userIds = userService.getAllChildID(userID);
-		userIds.add(0, userID);
-
-		List<Integer> patientIds = patientService.getPatientIds(userIds);
+    /**
+     * 根据病人姓名或者终端编号分页获取用户及下属机构的数据信息
+     * @param userID: 要搜索的用户ID
+     * @param terminalNumOrPatientName：病人姓名或者终端编号
+     * @param firstIndex：要搜索的第一条记录的索引
+     * @param count：要搜索的数据量
+     * @return：满足搜索条件的数据总数和本次搜索的数据信息
+     */
+	public ResultList<DataInfo> getOneGroupData(int userID, String terminalNumOrPatientName, int firstIndex, long count) {
+		List<Integer> patientIds = patientService.getPatientIds( userService.getAllChildID(userID) );
 		if(patientIds.size() == 0) {
             return null;
         }
 
         QData qData = QData.data;
 		QPatient qPatient = QPatient.patient;
+
         BooleanBuilder predicate = new BooleanBuilder();
-        predicate.and( qData.patientid.in(patientIds).and(qPatient.id.in(patientIds)) );
+        predicate.and( qData.patientid.in(patientIds) );
+
         if( terminalNumOrPatientName != null && !terminalNumOrPatientName.isEmpty() )
-            predicate.and(qData.terminalnum.contains(terminalNumOrPatientName).or(qPatient.name.contains(terminalNumOrPatientName)));
+            predicate.and(qData.terminalnum.contains(terminalNumOrPatientName)
+                               .or(qPatient.name.contains(terminalNumOrPatientName)));
 
-        QueryResults<Tuple> results = queryFactory.select(qData.id, qData.patientid, qData.type, qData.terminalnum, qData.filename, qData.createdate, qData.endtime, qPatient.name)
-                .from(qData)
-                .join(qPatient)
-                .on(qData.patientid.eq(qPatient.id))
-                // .where(predicate)
-                .offset(firstIndex)
-                .limit(count)
-                .fetchResults();
+        QueryResults<Tuple> results = queryFactory.select(qData, qPatient)
+                                                .from(qData)
+                                                .join(qPatient)
+                                                .on(qData.patientid.eq(qPatient.id))
+                                                .where(predicate)
+                                                .offset(firstIndex)
+                                                .limit(count)
+                                                .fetchResults();
+
+        return new ResultList<>(results.getTotal(), results.getResults()
+                                                           .stream()
+                                                           .map(row -> {
+                                                                Data data = row.get(qData);
+                                                                Patient patient = row.get(qPatient);
+
+                                                                return new DataInfo(data.getId(),
+                                                                        data.getPatientid(),
+                                                                        data.getType(),
+                                                                        data.getTerminalnum(),
+                                                                        data.getFilename(),
+                                                                        data.getCreatedate(),
+                                                                        data.getEndtime(),
+                                                                        patient.getName());
+                                                            }).collect(Collectors.toList()));
+
+//        return results.getResults().stream().map(row -> new DataInfo(row.get(qData.id),
+//                row.get(qData.patientid),
+//                row.get(qData.type),
+//                row.get(qData.terminalnum),
+//                row.get(qData.filename),
+//                row.get(qData.createdate),
+//                row.get(qData.endtime),
+//                row.get(qPatient.name))).collect(Collectors.toList());
 
         //results.getTotal(); //总数
-        return results.getResults().stream().map(row -> new DataInfo(row.get(qData.id),
-                row.get(qData.patientid),
-                row.get(qData.type),
-                row.get(qData.terminalnum),
-                row.get(qData.filename),
-                row.get(qData.createdate),
-                row.get(qData.endtime),
-                row.get(qPatient.name))).collect(Collectors.toList());
-
-        //results.getTotal(); //总数
-        //return results.getResults();
 	}
 
-    private User GetUser(int userid, List<User> users){
-        for(User user: users){
-            if(user.getId().equals( userid ))
-                return user;
-        }
-
-        return null;
-    }
-
-    private String GetHandleStateDesc(Patient patientDataInfo, List<User> users) {
+    /**
+     * 获取病人的处理状态描述
+     * @param patientDataInfo 病人信息
+     * @param users 用户数据
+     * @return 处理状态描述
+     */
+    private String GetHandleStateDesc(Patient patientDataInfo, Map<Integer, User> users) {
 
         String userName = "";
-        User user = GetUser(patientDataInfo.getHandleuserid(), users);
+        User user = users.get(patientDataInfo.getHandleuserid());
         if (user != null)
             userName = user.getName();
 
@@ -131,11 +147,15 @@ public class DataService {
         }
     }
 
-    public List<SimplePatientInfo> searchReplayInfo1(int userID, DataSearchCondition searchCondition) {
+    /**
+     * 根据病人姓名、床号、医院、科室、处理状态等获取用户及下属机构的病人处理状态数据
+     * @param userID 用户ID
+     * @param searchCondition 搜索条件：病人姓名、床号、医院、科室、处理状态等
+     * @return 病人处理状态数据列表
+     */
+    List<SimplePatientInfo> searchReplayInfo1(int userID, PatientDataSearchCondition searchCondition) {
 
         List<Integer> userIds = userService.getAllChildID(userID);
-        userIds.add(0, userID);
-
         QPatient qPatient = QPatient.patient;
 
         BooleanBuilder predicate = new BooleanBuilder();
@@ -160,33 +180,33 @@ public class DataService {
             }
         }
 
-        List<Patient> patients = null;
-        List<User> users = userService.getAllAnalysts();
+        List<Patient> patients;
+        Map<Integer, User> users = userService.getAllAnalysts();
         if (searchCondition != null && searchCondition.patientcount > 0) {
             patients = queryFactory.selectFrom(qPatient)
-                    .where(predicate)
-                    .limit(searchCondition.patientcount)
-                    .orderBy(qPatient.id.desc())
-                    .fetch();
+                                    .where(predicate)
+                                    .limit(searchCondition.patientcount)
+                                    .orderBy(qPatient.id.desc())
+                                    .fetch();
         }
         else {
             patients = queryFactory.selectFrom(qPatient)
-                    .where(predicate)
-                    .orderBy(qPatient.id.desc())
-                    .fetch();
+                                    .where(predicate)
+                                    .orderBy(qPatient.id.desc())
+                                    .fetch();
         }
 
         return patients.stream().map(patient -> {
 
             String hospital = "", department = "";
-            User user = GetUser( patient.getUserid(), users );
+            User user = users.get( patient.getUserid() );
 
             if (user != null) {
                 if (user.getType() == 4) {   //医院
                     hospital = user.getName();
                 } else if (user.getType() == 5) {   //科室
                     department = user.getName();
-                    User parentUser = GetUser(user.getParentuserid(), users);
+                    User parentUser = users.get(user.getParentuserid());
                     if (parentUser != null)
                         hospital = parentUser.getName();
                 }
@@ -201,6 +221,12 @@ public class DataService {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * 数据时长是否大于等于minseconds
+     * @param data 数据信息
+     * @param minseconds 比较的时长
+     * @return
+     */
     private boolean IsDataTimeSpanEnough(Data data, int minseconds){
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -217,10 +243,23 @@ public class DataService {
         }
     }
 
+    /**
+     * 根据病人ID和数据类型获取数据
+     * @param patientID 病人ID
+     * @param type 数据类型
+     * @return 数据列表
+     */
     List<Data> getDatasByPatienIdAndType(int patientID, int type) {
         return dataRepository.findByPatientidAndType(patientID, type);
     }
 
+    /**
+     * 设置数据的处理状态
+     * @param dataIDs 数据ID
+     * @param state 处理状态
+     * @param userid 进行处理的用户
+     * @return
+     */
     boolean setHandleState(List<Integer> dataIDs, int state, int userid) {
         Date date = new Date();
         String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
@@ -259,6 +298,15 @@ public class DataService {
         return true;
     }
 
+    /**
+     * 根据数据处理状态、起始时间和结束时间获取某个病人的数据信息
+     * @param patientID 病人ID
+     * @param begeindate 起始时间
+     * @param enddate 结束时间
+     * @param state 处理状态
+     * @param minseconds 如果数据时长小于minseconds，则忽略该数据
+     * @return 数据列表
+     */
     List<Data> getOnePatientData(int patientID, String begeindate, String enddate, int state, int minseconds) {
 
         BooleanBuilder predicate = new BooleanBuilder();
@@ -282,6 +330,14 @@ public class DataService {
     }
 
     private String []extention = {".mpm", ".mpr", ".mpe", ".mpb"};
+
+    /**
+     * 是否有新文件下载(deprecated)
+     * @param patientID 病人ID
+     * @param datatype 数据类型
+     * @param filelength 文件长度
+     * @return
+     */
     HasNewFileToDownload hasNewFileToDownload(int patientID, int datatype, long filelength) {
 
         String filename = dataRepository.findByPatientidAndTypeOrderByIdDesc(patientID, datatype).get(0).getFilename();
@@ -300,6 +356,12 @@ public class DataService {
         }
     }
 
+    /**
+     * 是否有新文件下载
+     * @param fileName 文件名
+     * @param filelength 文件长度
+     * @return
+     */
     HasNewFileToDownload hasNewFileToDownload(String fileName, long filelength) {
 
         String yearAndMonthFolder = fileName.substring(0, 6);

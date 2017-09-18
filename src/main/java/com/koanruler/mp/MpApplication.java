@@ -1,6 +1,5 @@
 package com.koanruler.mp;
 
-import com.koanruler.mp.entity.DataSearchCondition;
 import com.koanruler.mp.service.DataService;
 import com.koanruler.mp.service.RmpService;
 import com.koanruler.mp.service.TerminalService;
@@ -37,10 +36,10 @@ public class MpApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
-		userService.getFullName(27);
-		userService.getFullName(28);
+//		List<Integer> result = userService.getAllChildID(1);
+//		userService.getFullName(28);
 //		terminalService.getAllTerminalInfo(2);
-//		DataSearchCondition searchCondition = new DataSearchCondition();
+//		PatientDataSearchCondition searchCondition = new PatientDataSearchCondition();
 //		searchCondition.setPatientname("test");
 //        searchCondition.setPatientcount(10);
 //		dataService.searchReplayInfo1(2, searchCondition);

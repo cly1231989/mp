@@ -27,6 +27,4 @@ public interface PatientRepository extends PagingAndSortingRepository<Patient, I
     List<Patient> findByUseridIn(List<Integer> userIDList);
 
 	List<Patient> findByNameLike(String patientName);
-
-    List<Integer> getPatientIDByUseridIn(List<Integer> userIDList);
 }

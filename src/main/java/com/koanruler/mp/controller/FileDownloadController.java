@@ -21,7 +21,7 @@ public class FileDownloadController {
     public void downurl(HttpServletRequest request, HttpServletResponse response) throws Exception
     {
         String fileName =  request.getParameter("filename") ;
-        Map<String , Object > result = new HashMap<String , Object >() ;
+        Map<String , Object > result = new HashMap<>() ;
 
         if ( fileName == null || fileName.isEmpty() )
         {
@@ -31,16 +31,8 @@ public class FileDownloadController {
             return ;
         }
 
-        //System.out.println( "fileName: " + fileName);
         String yearandmonthfolder = fileName.substring(0, 6);
-        //System.out.println( "yearandmonthfolder: " + yearandmonthfolder);
-
         String datefolder = fileName.substring(6, 8);
-        //System.out.println( "datefolder: " + datefolder);
-
-        //WEB路径
-        String strWebPath  	= request.getContextPath() ;
-        //System.out.println( "strWebPath: " + strWebPath);
 
         String strServer;
         Integer port;

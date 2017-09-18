@@ -2,7 +2,7 @@ package com.koanruler.mp.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.koanruler.mp.entity.DataSearchCondition;
+import com.koanruler.mp.entity.PatientDataSearchCondition;
 import com.koanruler.mp.entity.Patient;
 import com.koanruler.mp.entity.PatientSearchCondition;
 import com.koanruler.mp.entity.ServiceResult;
@@ -62,7 +62,14 @@ public class RmpServiceImpl implements RmpService {
 
     @Override
     public String PATIENT_GetCount(int userID, String patientName, boolean inhospital) {
-        return new ServiceResult(true, patientService.getCount(userID, patientName, inhospital)).toJson();
+        PatientSearchCondition patientSearchCondition = new PatientSearchCondition(patientName,
+                0,
+                1,
+                true,
+                inhospital ? PatientSearchCondition.InHospitalStatus.inHospital: PatientSearchCondition.InHospitalStatus.outHospital);
+
+        List userIds = Arrays.asList(userID);
+        return new ServiceResult(true, patientService.getOneGroupPatientInfo(userIds, patientSearchCondition).getTotal()).toJson();
     }
 
     @Override
@@ -79,7 +86,7 @@ public class RmpServiceImpl implements RmpService {
                                                                                    inhospital ? PatientSearchCondition.InHospitalStatus.inHospital: PatientSearchCondition.InHospitalStatus.outHospital);
 
         List userIds = Arrays.asList(userID);
-        return new ServiceResult(true, patientService.getOneGroupPatientInfo(userIds, patientSearchCondition, false).getResults()).toJson();
+        return new ServiceResult(true, patientService.getOneGroupPatientInfo(userIds, patientSearchCondition).getResults()).toJson();
     }
 
 //    @Override
@@ -89,7 +96,8 @@ public class RmpServiceImpl implements RmpService {
 
     @Override
     public String PATIENT_AddPatient(Patient patientInfo) {
-        return new ServiceResult(patientService.addPatient(patientInfo), null).toJson();
+        patientService.Save(patientInfo);
+        return new ServiceResult(true, null).toJson();
     }
 
     @Override
@@ -99,7 +107,7 @@ public class RmpServiceImpl implements RmpService {
 
     @Override
     public byte[] DATA_GetCompressedSearchReplayInfo(int userID, String patientname, String bednum, int hospitalid, int departmentid, String begindate, String enddate, int type, int state, int minseconds, int patientcount) {
-        DataSearchCondition searchCondition = new DataSearchCondition(patientname, bednum, hospitalid, departmentid, begindate, enddate, type, state, patientcount, minseconds);
+        PatientDataSearchCondition searchCondition = new PatientDataSearchCondition(patientname, bednum, hospitalid, departmentid, begindate, enddate, type, state, patientcount, minseconds);
 
         long beginTime = System.currentTimeMillis();
         byte[] data;

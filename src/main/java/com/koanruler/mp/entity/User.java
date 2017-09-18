@@ -103,160 +103,170 @@ public class User {
 		this(user.getId(), user.getParentuserid(), user.getAccount(), user.getPwd(),
 				user.getName(), user.getType(), user.getRight1(), user.getRight2(),
 				user.getRight3(), user.getRight4(), user.getPhone(), user.getAddress(),
-				user.getCreatedate(), user.getdelflag(), user.getVersion(), user.BPShowMode,
+				user.getCreatedate(), user.getDelflag(), user.getVersion(), user.BPShowMode,
 				user.spo2Warning, user.getBTWarning());
 	}
 
+
 	public Integer getId() {
-		return this.id;
+		return id;
 	}
 
-	public void setId(Integer id) {
+	public User setId(Integer id) {
 		this.id = id;
+		return this;
 	}
 
 	public Integer getParentuserid() {
-		return this.parentuserid;
+		return parentuserid;
 	}
 
-	public void setParentuserid(Integer parentuserid) {
+	public User setParentuserid(Integer parentuserid) {
 		this.parentuserid = parentuserid;
+		return this;
 	}
 
 	public String getAccount() {
-		return this.account;
+		return account;
 	}
 
-	public void setAccount(String account) {
+	public User setAccount(String account) {
 		this.account = account;
+		return this;
 	}
 
 	public String getPwd() {
-		return this.pwd;
+		return pwd;
 	}
 
-	public void setPwd(String pwd) {
+	public User setPwd(String pwd) {
 		this.pwd = pwd;
+		return this;
 	}
 
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
-	public void setName(String name) {
+	public User setName(String name) {
 		this.name = name;
+		return this;
 	}
 
 	public Integer getType() {
-		return this.type;
+		return type;
 	}
 
-	public void setType(Integer type) {
+	public User setType(Integer type) {
 		this.type = type;
+		return this;
 	}
 
 	public Integer getRight1() {
-		return this.right1;
+		return right1;
 	}
 
-	public void setRight1(Integer right1) {
+	public User setRight1(Integer right1) {
 		this.right1 = right1;
+		return this;
 	}
 
 	public Integer getRight2() {
-		return this.right2;
+		return right2;
 	}
 
-	public void setRight2(Integer right2) {
+	public User setRight2(Integer right2) {
 		this.right2 = right2;
+		return this;
 	}
 
 	public Integer getRight3() {
-		return this.right3;
+		return right3;
 	}
 
-	public void setRight3(Integer right3) {
+	public User setRight3(Integer right3) {
 		this.right3 = right3;
+		return this;
 	}
 
 	public Integer getRight4() {
-		return this.right4;
+		return right4;
 	}
 
-	public void setRight4(Integer right4) {
+	public User setRight4(Integer right4) {
 		this.right4 = right4;
+		return this;
 	}
 
 	public String getPhone() {
-		return this.phone;
+		return phone;
 	}
 
-	public void setPhone(String phone) {
+	public User setPhone(String phone) {
 		this.phone = phone;
+		return this;
 	}
 
 	public String getAddress() {
-		return this.address;
+		return address;
 	}
 
-	public void setAddress(String address) {
+	public User setAddress(String address) {
 		this.address = address;
+		return this;
 	}
-
 
 	public String getCreatedate() {
-		return this.createdate;
+		return createdate;
 	}
 
-	public void setCreatedate(String createdate) {
+	public User setCreatedate(String createdate) {
 		this.createdate = createdate;
-	}
-	
-	public Integer getdelflag() {
-		return this.delflag;
-	}
-	
-	public void setdelflag(Integer delflag) {
-		this.delflag = delflag;
-	}
-
-	public Integer getVersion() {
-		return this.version;
-	}
-
-	public void setVersion(Integer version) {
-		this.version = version;
+		return this;
 	}
 
 	public Integer getDelflag() {
 		return delflag;
 	}
 
-	public void setDelflag(Integer delflag) {
+	public User setDelflag(Integer delflag) {
 		this.delflag = delflag;
+		return this;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public User setVersion(Integer version) {
+		this.version = version;
+		return this;
 	}
 
 	public Integer getBPShowMode() {
 		return BPShowMode;
 	}
 
-	public void setBPShowMode(Integer BPShowMode) {
+	public User setBPShowMode(Integer BPShowMode) {
 		this.BPShowMode = BPShowMode;
+		return this;
 	}
 
 	public Boolean getSpo2Warning() {
 		return spo2Warning;
 	}
 
-	public void setSpo2Warning(Boolean spo2Warning) {
+	public User setSpo2Warning(Boolean spo2Warning) {
 		this.spo2Warning = spo2Warning;
+		return this;
 	}
 
 	public Boolean getBTWarning() {
 		return BTWarning;
 	}
 
-	public void setBTWarning(Boolean BTWarning) {
+	public User setBTWarning(Boolean BTWarning) {
 		this.BTWarning = BTWarning;
+		return this;
 	}
 }

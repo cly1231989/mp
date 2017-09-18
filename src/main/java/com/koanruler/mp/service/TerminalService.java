@@ -2,16 +2,16 @@ package com.koanruler.mp.service;
 
 import com.koanruler.mp.entity.*;
 import com.koanruler.mp.repository.TerminalRepository;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TerminalService {
@@ -24,22 +24,40 @@ public class TerminalService {
     @Autowired
     private JPAQueryFactory queryFactory;
 
-	//获取某一用户及下级用户的终端绑定信息
+    /**
+     * 获取某一用户及下级用户的终端绑定信息，可根据终端编号进行搜索
+     * @param userID
+     * @param terNum
+     * @return
+     */
+    private QueryResults<Tuple> searchTerminalInfo(int userID, String terNum) {
+        List<Integer> userIDList = userService.getAllChildID(userID);
+
+        BooleanBuilder predicate = new BooleanBuilder();
+        predicate.and(QTerminal.terminal.deleteflag.ne(true));
+        if (terNum != null && !terNum.isEmpty())
+            predicate.and(QTerminal.terminal.terminalnumber.contains(terNum));
+
+        return queryFactory.select(QTerminal.terminal, QUser.user, QPatient.patient)
+                .from(QTerminal.terminal)
+                .join(QUser.user)
+                .on(QTerminal.terminal.userid.eq(QUser.user.id))
+                .leftJoin(QPatient.patient)
+                .on(QTerminal.terminal.patientid.eq(QPatient.patient.id))
+                .where(predicate)
+                .orderBy(QTerminal.terminal.patientid.desc())
+                .where(QTerminal.terminal.deleteflag.eq(false).and(QTerminal.terminal.userid.in(userIDList)))
+                .fetchResults();
+    }
+
+    /**
+     * 获取某一用户及下级用户的终端绑定信息
+     * @param userID
+     * @return
+     */
 	public List<BindTerminalInfo> getAllTerminalInfo(int userID) {
-		List<Integer> userIDList = userService.getAllChildID(userID);
-		userIDList.add(userID);
-
         List<BindTerminalInfo> bindTerminalInfoList = new ArrayList<>();
-
-        List<Tuple> result = queryFactory.select(QTerminal.terminal, QUser.user, QPatient.patient)
-					.from(QTerminal.terminal)
-                    .join(QUser.user)
-                    .on(QTerminal.terminal.userid.eq(QUser.user.id))
-					.leftJoin(QPatient.patient)
-					.on(QTerminal.terminal.patientid.eq(QPatient.patient.id))
-                    .orderBy(QTerminal.terminal.patientid.desc())
-					.where(QTerminal.terminal.deleteflag.eq(false).and(QTerminal.terminal.userid.in(userIDList)))
-					.fetch();
+        List<Tuple> result = searchTerminalInfo(userID, null).getResults();
 
         for (Tuple row: result){
             Terminal terminal = row.get(QTerminal.terminal);
@@ -70,17 +88,74 @@ public class TerminalService {
 		return bindTerminalInfoList;
 	}
 
-	public Terminal getTerminal(String terminalNum) {
-		return terminalRepository.findByTerminalnumber(terminalNum);
+	Terminal getTerminal(String terminalNum) {
+		return terminalRepository.findByTerminalnumberAndDeleteflag(terminalNum,false);
 	}
 
-	public boolean bindTerminal(String terminalNum, int patientID) {		
-		Terminal terminal = terminalRepository.findByTerminalnumber(terminalNum);
-		terminal.setPatientid(patientID);
-		terminalRepository.save(terminal);
-		
-		return true;
-	}
+//	public boolean bindTerminal(String terminalNum, int patientID) {
+//		Terminal terminal = terminalRepository.findByTerminalnumberAndDeleteflag(terminalNum, false);
+//		terminal.setPatientid(patientID);
+//		terminalRepository.Save(terminal);
+//
+//		return true;
+//	}
 
-	
+
+    /**
+     * 获取用户及下属机构的终端使用信息，可根据终端编号和绑定情况进行搜索
+     * @param userId
+     * @param terNum
+     * @param onlyFindBoundTer: 是否只查找已绑定的终端
+     * @return
+     */
+    public ResultList<TerminalUseInfo> getTerminalInfo(Integer userId, String terNum, boolean onlyFindBoundTer) {
+	    List<Integer> userIds = userService.getAllChildID(userId);
+
+	    BooleanBuilder predicate = new BooleanBuilder();
+	    predicate.and(QTerminal.terminal.deleteflag.eq(false))
+                 .and(QTerminal.terminal.userid.in(userIds));
+
+	    if (onlyFindBoundTer)
+	        predicate.and(QTerminal.terminal.patientid.ne(0));
+
+	    if (terNum != null && !terNum.isEmpty()){
+	        predicate.and(QTerminal.terminal.terminalnumber.contains(terNum));
+        }
+
+        QueryResults<Tuple> results;
+	    if (onlyFindBoundTer)       //只查找已被绑定的终端
+	        results = queryFactory.select(QTerminal.terminal, QPatient.patient)
+                .from(QTerminal.terminal)
+                .join(QPatient.patient)
+                .on(QTerminal.terminal.patientid.eq(QPatient.patient.id))
+                .where(predicate)
+                .fetchResults();
+	    else
+            results = queryFactory.select(QTerminal.terminal, QPatient.patient)
+                    .from(QTerminal.terminal)
+                    .leftJoin(QPatient.patient)
+                    .on(QTerminal.terminal.patientid.eq(QPatient.patient.id))
+                    .where(predicate)
+                    .fetchResults();
+
+	    return new ResultList<>(results.getTotal(), results.getResults().stream().map(row -> {
+
+	        Terminal terminal = row.get(QTerminal.terminal);
+	        Patient patient = row.get(QPatient.patient);
+	        if (patient == null)
+	            patient = new Patient();
+
+	        return new TerminalUseInfo(terminal.getUserid(),
+                                       userService.getFullName(terminal.getUserid()),
+                                       patient.getName(),
+                                       patient.getAge(),
+                                       patient.getSex(),
+                                       terminal.getTerminalnumber(),
+                                       terminal.getBindtime());
+        }).collect(Collectors.toList()));
+    }
+
+    public void Save(Terminal terminal) {
+        terminalRepository.save(terminal);
+    }
 }

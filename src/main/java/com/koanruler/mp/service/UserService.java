@@ -4,16 +4,13 @@ import com.koanruler.mp.entity.*;
 import com.koanruler.mp.repository.UserRepository;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jdk.nashorn.internal.runtime.options.Option;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class UserService {
@@ -78,28 +75,26 @@ public class UserService {
 		return selfinfo;
 	}
 
-	public Boolean login(String account, String pwd) {
-		Optional<User> optionalUser = userRepository.findByAccount(account);
-		optionalUser.orElseThrow(() -> new UsernameNotFoundException("user name not found"));
-		return optionalUser.get().getPwd().equals(pwd);
-	}
+	private List<Integer> intTupleToList(List<Tuple> tupleList){
+		return tupleList.stream()
+						.map(tuple -> {
+							List<Integer> list = new ArrayList<>();
 
-	private List<Integer> intTupleToList(List<Tuple> tuple){
-        List<Integer> list = new ArrayList<>();
+							for (int i = 0; i < tuple.size(); i++) {
+								Integer id = tuple.get(i, Integer.class);
+								if (id != null)
+									list.add(id);
+							}
 
-        for (Tuple row: tuple){
-            for (int i = 0; i < row.size(); i++) {
-                Integer id = row.get(i, Integer.class);
-                if (id != null)
-                    list.add(id);
-            }
-        }
-
-        return list;
+							return list;
+						})
+						.flatMap(Collection::stream)
+						.distinct()
+						.collect(Collectors.toList());
     }
 
 	//获取所有的下级用户ID
-	List<Integer> getAllChildID(int userID)
+	public List<Integer> getAllChildID(int userID)
 	{
         QUser user1 = QUser.user;
         QUser user2 = new QUser("user2");
@@ -129,8 +124,10 @@ public class UserService {
 	}
 
 	//获取所有的分析师
-	public List<User> getAllAnalysts() {
-		return userRepository.findByType(7);
+	public Map<Integer, User> getAllAnalysts() {
+		return userRepository.findByType(7)
+							 .stream()
+							 .collect(Collectors.toMap(User::getId, user -> user));
 	}
 
 	public List<User> getAllUser(List<Integer> userIDList) {
@@ -175,5 +172,18 @@ public class UserService {
 		}
 
 		return parentUsers;
+	}
+
+	public List<UserInfo> getAllSubUser(Integer userId) {
+		return getAllUser( getAllChildID(userId) )
+				.stream()
+				.map(user -> new UserInfo(user.getName(),
+										  getFullName(user.getParentuserid()),
+						   				  user))
+				.collect(Collectors.toList());
+	}
+
+	public void addUser(User user) {
+		userRepository.save(user);
 	}
 }

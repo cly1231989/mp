@@ -97,7 +97,7 @@
 			e.preventDefault();
 			$.ajax({
 				type: "POST",
-				url: 'mp/terminal/save',  
+				url: 'mp/terminal/Save',
 				data: $('#editterform').serialize(),  
 				success: function(r){ 
 					if($('#terid').val=="0"){
