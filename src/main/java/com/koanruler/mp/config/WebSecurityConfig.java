@@ -41,6 +41,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
 //            .anyRequest().permitAll();
             .antMatchers("/css/*", "/js/*", "**/filedown/**", "**/clientservice/**").permitAll()
+            .antMatchers("/auth/**").permitAll()
             .anyRequest().authenticated();
         //怎么登录和注销？
 //            .and()
