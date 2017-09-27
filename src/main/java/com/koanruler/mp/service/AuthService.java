@@ -45,4 +45,15 @@ public class AuthService {
         return token;
 
     }
+
+    public String refresh(String oldToken) {
+        final String token = oldToken.substring(tokenHead.length());
+        return jwtTokenUtil.refreshToken(token);
+//        String username = jwtTokenUtil.getUsernameFromToken(token);
+//        User user = (User) userDetailsService.loadUserByUsername(username);
+//        if (jwtTokenUtil.canTokenBeRefreshed(token, user.getLastPasswordResetDate())){
+//            return jwtTokenUtil.refreshToken(token);
+//        }
+//        return null;
+    }
 }
