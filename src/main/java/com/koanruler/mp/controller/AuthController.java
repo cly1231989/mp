@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
  * Created by chengyuan on 2017/9/24.
  */
 @RestController
-@CrossOrigin(origins = "http://localhost:8060")
+//@CrossOrigin(origins = "http://localhost:8060")
 public class AuthController {
     @Value("${jwt.header}")
     private String tokenHeader;

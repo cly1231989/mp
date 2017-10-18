@@ -21,8 +21,9 @@ public class JwtTokenUtil implements Serializable {
 
     private static final long serialVersionUID = -3301605591108950415L;
 
-    private static final String CLAIM_KEY_USERNAME = "sub";
-    private static final String CLAIM_KEY_NAME = "name";
+    private static final String CLAIM_KEY_USERNAME = "sub";  //account name
+    private static final String CLAIM_KEY_NAME = "name";     //name
+    private static final String CLAIM_KEY_TYPE = "type";
     private static final String CLAIM_KEY_USERID = "userId";
     private static final String CLAIM_KEY_CREATED = "created";
 
@@ -32,7 +33,30 @@ public class JwtTokenUtil implements Serializable {
     @Value("${jwt.expiration}")
     private Long expiration;
 
-    public String getUsernameFromToken(String token) {
+    public int getUserTypeFromToken(String authToken) {
+        int userType = 0;
+        try {
+            final Claims claims = getClaimsFromToken(authToken);
+            userType = (Integer) claims.get(CLAIM_KEY_TYPE);
+        } catch (Exception e) {
+            userType = 0;
+        }
+
+        return userType;
+    }
+
+    public String getUserNameFromToken(String token) {
+        String username;
+        try {
+            final Claims claims = getClaimsFromToken(token);
+            username = (String)claims.get(CLAIM_KEY_NAME);
+        } catch (Exception e) {
+            username = null;
+        }
+        return username;
+    }
+
+    public String getAccountFromToken(String token) {
         String username;
         try {
             final Claims claims = getClaimsFromToken(token);
@@ -97,6 +121,7 @@ public class JwtTokenUtil implements Serializable {
         if (userDetails instanceof User) {
             claims.put(CLAIM_KEY_USERID, ((User) userDetails).getId());
             claims.put(CLAIM_KEY_NAME, ((User) userDetails).getName());
+            claims.put(CLAIM_KEY_TYPE, ((User) userDetails).getType());
         }
 
         claims.put(CLAIM_KEY_CREATED, new Date());
@@ -131,12 +156,23 @@ public class JwtTokenUtil implements Serializable {
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         User user = (User) userDetails;
-        final String username = getUsernameFromToken(token);
+        final String account = getAccountFromToken(token);
         final Date created = getCreatedDateFromToken(token);
         //final Date expiration = getExpirationDateFromToken(token);
         return (
-                username.equals(user.getAccount())
+                account.equals(user.getAccount())
                         && !isTokenExpired(token));
 //                        && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate()));
+    }
+
+    public Boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 }
