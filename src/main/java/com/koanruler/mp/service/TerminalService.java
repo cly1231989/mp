@@ -5,6 +5,7 @@ import com.koanruler.mp.repository.TerminalRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -108,7 +109,7 @@ public class TerminalService {
      * @param onlyFindBoundTer: 是否只查找已绑定的终端
      * @return
      */
-    public ResultList<TerminalUseInfo> getTerminalInfo(Integer userId, String terNum, boolean onlyFindBoundTer) {
+    public ResultList<TerminalUseInfo> getTerminalInfo(Integer userId, int page, int countPerPage, String terNum, boolean onlyFindBoundTer) {
 	    List<Integer> userIds = userService.getAllChildID(userId);
 
 	    BooleanBuilder predicate = new BooleanBuilder();
@@ -123,21 +124,25 @@ public class TerminalService {
         }
 
         QueryResults<Tuple> results;
+        JPAQuery<Tuple> query;
 	    if (onlyFindBoundTer)       //只查找已被绑定的终端
-	        results = queryFactory.select(QTerminal.terminal, QPatient.patient)
+            query = queryFactory.select(QTerminal.terminal, QPatient.patient)
                 .from(QTerminal.terminal)
                 .join(QPatient.patient)
                 .on(QTerminal.terminal.patientid.eq(QPatient.patient.id))
-                .where(predicate)
-                .fetchResults();
+                .where(predicate);
 	    else
-            results = queryFactory.select(QTerminal.terminal, QPatient.patient)
+            query = queryFactory.select(QTerminal.terminal, QPatient.patient)
                     .from(QTerminal.terminal)
                     .leftJoin(QPatient.patient)
                     .on(QTerminal.terminal.patientid.eq(QPatient.patient.id))
-                    .where(predicate)
-                    .fetchResults();
+                    .where(predicate);
 
+	    if (countPerPage == -1) {
+            query = query.offset( (page-1) * countPerPage).limit(countPerPage);
+        }
+
+        results = query.fetchResults();
 	    return new ResultList<>(results.getTotal(), results.getResults().stream().map(row -> {
 
 	        Terminal terminal = row.get(QTerminal.terminal);
@@ -145,7 +150,8 @@ public class TerminalService {
 	        if (patient == null)
 	            patient = new Patient();
 
-	        return new TerminalUseInfo(terminal.getUserid(),
+	        return new TerminalUseInfo(terminal.getId(),
+                                       terminal.getUserid(),
                                        userService.getFullName(terminal.getUserid()),
                                        patient.getName(),
                                        patient.getAge(),

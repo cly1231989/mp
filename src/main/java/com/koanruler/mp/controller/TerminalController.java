@@ -5,7 +5,6 @@ import com.koanruler.mp.service.TerminalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import javax.websocket.server.PathParam;
 
 @RestController
 @RequestMapping("/terminal")
@@ -19,21 +18,15 @@ public class TerminalController {
      * @return 满足条件的终端数量和终端信息
      */
 	@GetMapping("/search")
-    public ResultList<TerminalUseInfo> searchTerInfo(@PathParam("terNum")String terNum){
+    public ResultData<TerminalUseInfo> searchTerInfo(@RequestParam(name = "page", defaultValue = "1") Integer page,
+                                                     @RequestParam(name = "per_page", defaultValue = "-1") Integer countPerPage,
+                                                     @RequestParam(name = "filter", defaultValue = "") String terNum,
+                                                     @RequestParam(name = "sort", defaultValue = "") Integer sort,
+                                                     @RequestParam(name = "only_find_bound_ter", defaultValue = "false") Boolean onlyFindBoundTer){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return terminalService.getTerminalInfo(user.getId(), terNum, false);
+        ResultList<TerminalUseInfo> result = terminalService.getTerminalInfo(user.getId(), page, countPerPage, terNum, onlyFindBoundTer);
+        return new ResultData(page, countPerPage, null, null, result);
     }
-
-    /**
-     * 获取用户及下属机构的已绑定的终端信息，可根据终端编号进行搜索
-     * @param terNum 终端编号
-     * @return 满足条件的终端数量和已绑定的终端信息
-     */
-	@GetMapping("/use/search")
-	public ResultList<TerminalUseInfo> searchBoundTerInfo(@PathParam("terNum")String terNum){
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return terminalService.getTerminalInfo(user.getId(), terNum, true);
-	}
 
     /**
      * 添加终端

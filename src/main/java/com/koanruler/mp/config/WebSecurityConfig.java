@@ -5,6 +5,7 @@ import com.koanruler.mp.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -39,6 +40,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .csrf().disable()   //由于使用的是JWT，我们这里不需要csrf
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and() // 基于token，所以不需要session
             .authorizeRequests()
+            .antMatchers(HttpMethod.OPTIONS).permitAll()
 //            .anyRequest().permitAll();
             .antMatchers("/css/*", "/js/*", "**/filedown/**", "**/clientservice/**").permitAll()
             .antMatchers("/auth/**").permitAll() //refresh请求还是会被JwtAuthenticationTokenFilter拦截

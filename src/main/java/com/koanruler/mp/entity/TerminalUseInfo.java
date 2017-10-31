@@ -1,6 +1,7 @@
 package com.koanruler.mp.entity;
 
 public class TerminalUseInfo {
+	private int terminalid;
 	private int userid;
 	private String username;   //用户名，分层显示，比如中心1/医院1/科室1
 	private String patientname;
@@ -9,7 +10,8 @@ public class TerminalUseInfo {
 	private String terminalNum;
 	private String bindtime;
 
-	public TerminalUseInfo(int userid, String username, String patientname, String patientage, String patientsex, String terminalNum, String bindtime) {
+	public TerminalUseInfo(int terminalid, int userid, String username, String patientname, String patientage, String patientsex, String terminalNum, String bindtime) {
+		this.terminalid = terminalid;
 		this.userid = userid;
 		this.username = username;
 		this.patientname = patientname;
@@ -17,6 +19,15 @@ public class TerminalUseInfo {
 		this.patientsex = patientsex;
 		this.terminalNum = terminalNum;
 		this.bindtime = bindtime;
+	}
+
+	public int getTerminalid() {
+		return terminalid;
+	}
+
+	public TerminalUseInfo setTerminalid(int terminalid) {
+		this.terminalid = terminalid;
+		return this;
 	}
 
 	public String getUsername() {

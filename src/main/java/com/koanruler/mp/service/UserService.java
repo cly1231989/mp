@@ -119,6 +119,24 @@ public class UserService {
         return intTupleToList(results);
 	}
 
+	//分页获取下级用户ID, countPerPage==-1表示获取所有下级用户
+	public ResultList<Integer> getAllChildID(int userID, Integer page, Integer countPerPage)
+	{
+		List<Integer> userIds = getAllChildID(userID);
+		if (countPerPage == -1)
+			return new ResultList<>(userIds.size(), userIds);
+
+		int first = page * countPerPage;
+		if (first >= userIds.size())
+		    return new ResultList<>(0, null);
+
+		int last = (page+1)*countPerPage;
+		if (last > userIds.size())
+		    last = userIds.size();
+
+		return new ResultList<>(userIds.size(), userIds.subList(first, last));
+	}
+
 	User getUser(Integer userid) {
 		return userRepository.findOne(userid);
 	}
@@ -142,6 +160,7 @@ public class UserService {
 		if (allUserFullName.isEmpty() || LocalDateTime.now().minusMinutes(3).isAfter(getTime)){
 			getTime = LocalDateTime.now();
 			List<User> users = userRepository.findAll();
+            allUserFullName.clear();
 
 			Map<Integer, User> userMap = new HashMap<>();
 			users.forEach(user1 -> userMap.put(user1.getId(), user1));
@@ -174,6 +193,11 @@ public class UserService {
 		return parentUsers;
 	}
 
+	private String getType(int type){
+	    String[] userTypes = {"", "管理员", "经销商", "中心", "医院", "科室/楼层/病区", "会诊", "分析师"};
+	    return userTypes[type];
+    }
+
 	public List<UserInfo> getAllSubUser(Integer userId) {
 		return getAllUser( getAllChildID(userId) )
 				.stream()
@@ -181,6 +205,37 @@ public class UserService {
 										  getFullName(user.getParentuserid()),
 						   				  user))
 				.collect(Collectors.toList());
+	}
+
+	public ResultList<User> getSubUser(Integer userId, Integer page, Integer countPerPage, String filter) {
+        List<Integer> userIds = getAllChildID(userId);
+
+        List<User> users = getAllUser(userIds);
+        if (filter != null && !filter.isEmpty()) {
+            String userName = filter.trim();
+            users = users.stream().filter(user -> user.getName().contains(userName) || user.getAccount().contains(userName)).collect(Collectors.toList());
+        }
+
+        users.forEach(user -> {
+            user.setParentFullName(getFullName(user.getParentuserid()));
+            user.setUserType( getType(user.getType()) );
+        });
+
+        int totalCount = users.size();
+
+        if (countPerPage != -1) {
+            int first = page * countPerPage;
+            if (first >= users.size())
+                return new ResultList<>(0, null);
+
+            int last = (page+1)*countPerPage;
+            if (last > users.size())
+                last = users.size();
+
+            users = users.subList(first, last);
+        }
+
+        return new ResultList<>(totalCount, users);
 	}
 
 	public void addUser(User user) {

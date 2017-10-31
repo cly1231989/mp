@@ -1,9 +1,6 @@
 package com.koanruler.mp.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 
 @Entity
@@ -29,6 +26,11 @@ public class User {
 	private Integer BPShowMode = 0;
 	private Boolean spo2Warning = true;
 	private Boolean BTWarning = true;
+
+	@Transient
+	private String parentFullName;
+	@Transient
+	private String userType;
 
 	// Constructors
 
@@ -267,6 +269,24 @@ public class User {
 
 	public User setBTWarning(Boolean BTWarning) {
 		this.BTWarning = BTWarning;
+		return this;
+	}
+
+	public String getParentFullName() {
+		return parentFullName;
+	}
+
+	public User setParentFullName(String parentFullName) {
+		this.parentFullName = parentFullName;
+		return this;
+	}
+
+	public String getUserType() {
+		return userType;
+	}
+
+	public User setUserType(String userType) {
+		this.userType = userType;
 		return this;
 	}
 }

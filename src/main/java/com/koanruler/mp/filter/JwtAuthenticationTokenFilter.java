@@ -52,6 +52,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
                 User user = new User();
                 user.setAccount(account);
+                user.setId(jwtTokenUtil.getUserId(authToken));
                 user.setName(jwtTokenUtil.getUserNameFromToken(authToken));
                 user.setType(jwtTokenUtil.getUserTypeFromToken(authToken));
                 CustomUserDetails userDetails = new CustomUserDetails(user);

@@ -1,13 +1,18 @@
 package com.koanruler.mp.controller;
 
+import com.koanruler.mp.entity.ResultData;
+import com.koanruler.mp.entity.ResultList;
 import com.koanruler.mp.entity.User;
-import com.koanruler.mp.entity.UserInfo;
 import com.koanruler.mp.service.UserService;
 import com.koanruler.mp.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 @RestController
 //@CrossOrigin(origins = "http://localhost:8060")
@@ -16,12 +21,20 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
+	@Value("${url}")
+	private String url;
+
 	/**
 	 * 获取本用户及下属用户的信息
 	 */
 	@GetMapping("/all")
-	public List<UserInfo> getAllSubUser(){
-		return userService.getAllSubUser( UserUtil.getCurUser().getId() );
+	public ResultData<User> getAllSubUser(@RequestParam(name = "page", defaultValue = "1") Integer page,
+										@RequestParam(name = "per_page", defaultValue = "-1") Integer countPerPage,
+										@RequestParam(name = "filter", defaultValue = "") String filter,
+										@RequestParam(name = "sort", defaultValue = "") Integer sort
+										){
+		ResultList<User> result = userService.getSubUser( UserUtil.getCurUser().getId(), page-1, countPerPage, filter);
+		return new ResultData(page, countPerPage, null, url+"/user/all?page="+(page+1), result);
 	}
 
 	/**
@@ -30,6 +43,12 @@ public class UserController {
 	 */
 	@PostMapping(value = {"/add", "/edit"})
     public void addUser(@RequestBody User user){
+	    if (user.getCreatedate() == null) {
+            DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date today = Calendar.getInstance().getTime();
+            user.setCreatedate(formatter.format(today));
+        }
+
 	    userService.addUser(user);
     }
 	
