@@ -16,20 +16,20 @@ public class ResultData<T> {
     private Integer to;
     private List<T> data;
 
-    public ResultData(int page, int countPerPage, String prevPageUrl, String nextPageUrl, ResultList<T> resultList) {
+    public ResultData(int page, int countPerPage, String prevPageUrl, String nextPageUrl, long totalCount, List<T> data) {
         setCurrent_page(page);
         setPer_page(countPerPage);
-        setData(resultList.getDataInfo());
+        setData(data);
 
-        int lastPage = (int)resultList.getTotalCount()/countPerPage;
-        lastPage += resultList.getTotalCount() % countPerPage != 0 ? 1 : 0;
+        int lastPage = (int)totalCount/countPerPage;
+        lastPage += totalCount % countPerPage != 0 ? 1 : 0;
         setLast_page(lastPage);
         setNext_page_url(nextPageUrl);
         setPrev_page_url(prevPageUrl);
 
         setFrom((page-1)*countPerPage+1);
-        setTo((page-1)*countPerPage+resultList.getDataInfo().size());
-        setTotal(resultList.getTotalCount());
+        setTo((page-1)*countPerPage + data.size());
+        setTotal(totalCount);
     }
 
     public Long getTotal() {

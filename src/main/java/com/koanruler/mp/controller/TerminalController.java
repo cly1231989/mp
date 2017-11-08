@@ -2,12 +2,12 @@ package com.koanruler.mp.controller;
 
 import com.koanruler.mp.entity.*;
 import com.koanruler.mp.service.TerminalService;
+import com.koanruler.mp.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/terminal")
 public class TerminalController {
 	@Autowired
 	private TerminalService terminalService;
@@ -17,39 +17,45 @@ public class TerminalController {
      * @param terNum 终端编号
      * @return 满足条件的终端数量和终端信息
      */
-	@GetMapping("/search")
+	@GetMapping("/terminals")
     public ResultData<TerminalUseInfo> searchTerInfo(@RequestParam(name = "page", defaultValue = "1") Integer page,
                                                      @RequestParam(name = "per_page", defaultValue = "-1") Integer countPerPage,
                                                      @RequestParam(name = "filter", defaultValue = "") String terNum,
                                                      @RequestParam(name = "sort", defaultValue = "") Integer sort,
-                                                     @RequestParam(name = "only_find_bound_ter", defaultValue = "false") Boolean onlyFindBoundTer){
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        ResultList<TerminalUseInfo> result = terminalService.getTerminalInfo(user.getId(), page, countPerPage, terNum, onlyFindBoundTer);
-        return new ResultData(page, countPerPage, null, null, result);
+                                                     @RequestParam(name = "bind_only", defaultValue = "false") Boolean onlyFindBoundTer){
+
+        ResultList<TerminalUseInfo> result = terminalService.getTerminalInfo(UserUtil.getCurUser().getId(), page, countPerPage, terNum, onlyFindBoundTer);
+        return new ResultData(page, countPerPage, null, null, result.getTotalCount(), result.getDataInfo());
     }
 
     /**
      * 添加终端
      * @param terminal 终端信息
      */
-	@PostMapping("/add")
+	@PostMapping("/terminals")
     public void addTerminal(@RequestBody Terminal terminal){
-	    terminalService.Save(terminal);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        terminal.setUserid(user.getId());
+        terminalService.Save(terminal);
     }
-	
-//	public List<BindTerminalInfo> getAllTerminalInfo(@PathParam("userID") int userID )
-//	{
-//		return terminalService.getAllTerminalInfo(userID);
-//	}
-//
-//	public Terminal getTerminal(@PathParam("terminalID") String terminalNum)
-//	{
-//		return terminalService.getTerminal(terminalNum);
-//	}
-//
-//	public boolean bindTerminal( @PathParam("terminalID") String terminalNum, @PathParam("patientID") int patientID )
-//	{
-//		return terminalService.bindTerminal(terminalNum, patientID);
-//	}
-	
+
+    /**
+     * 编辑终端
+     * @param terminal 终端信息
+     */
+    @PutMapping("/terminals/{id}")
+    public void editTerminal(@PathVariable Integer id, @RequestBody Terminal terminal){
+            Terminal terminal1 = terminalService.getTerminal(id);
+            terminal1.setTerminalnumber(terminal.getTerminalnumber());
+            terminalService.Save(terminal1);
+    }
+
+    /**
+     * 删除终端
+     * @param id
+     */
+    @DeleteMapping("/terminals/{id}")
+    public void deleteTerminal(@PathVariable Integer id) {
+        terminalService.deleteTerminalById(id);
+    }
 }

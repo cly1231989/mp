@@ -34,7 +34,13 @@ public class Patient {
 	private String datahandletime;
 	private String zip;
 	private Boolean state;
-	
+
+	@Transient
+	String username;
+
+	@Transient
+	String hospital;
+
 	@Column(name = "handlestate", columnDefinition="int(4) default 0 COMMENT '0:未处理;1:正在处理;2:完成处理;3:更新处理;4:中断处理;7:正在处理，有新数据; 8:完成处理，有新数据;'")
 	private Integer handlestate;
 	
@@ -405,4 +411,21 @@ public class Patient {
 		this.recordendtime = recordendtime;
 	}
 
+	public String getUsername() {
+		return username;
+	}
+
+	public Patient setUsername(String username) {
+		this.username = username;
+		return this;
+	}
+
+	public String getHospital() {
+		return hospital;
+	}
+
+	public Patient setHospital(String hospital) {
+		this.hospital = hospital;
+		return this;
+	}
 }

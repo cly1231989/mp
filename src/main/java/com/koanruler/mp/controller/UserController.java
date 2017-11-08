@@ -16,7 +16,6 @@ import java.util.Date;
 
 @RestController
 //@CrossOrigin(origins = "http://localhost:8060")
-@RequestMapping("/user")
 public class UserController {
 	@Autowired
 	private UserService userService;
@@ -27,61 +26,47 @@ public class UserController {
 	/**
 	 * 获取本用户及下属用户的信息
 	 */
-	@GetMapping("/all")
-	public ResultData<User> getAllSubUser(@RequestParam(name = "page", defaultValue = "1") Integer page,
-										@RequestParam(name = "per_page", defaultValue = "-1") Integer countPerPage,
-										@RequestParam(name = "filter", defaultValue = "") String filter,
-										@RequestParam(name = "sort", defaultValue = "") Integer sort
-										){
+	@GetMapping("/users")
+	public ResultData<User> getAllSubUsers( @RequestParam(name = "page", defaultValue = "1") Integer page,
+											@RequestParam(name = "per_page", defaultValue = "-1") Integer countPerPage,
+											@RequestParam(name = "filter", defaultValue = "") String filter,
+											@RequestParam(name = "sort", defaultValue = "") Integer sort
+											){
 		ResultList<User> result = userService.getSubUser( UserUtil.getCurUser().getId(), page-1, countPerPage, filter);
-		return new ResultData(page, countPerPage, null, url+"/user/all?page="+(page+1), result);
+		return new ResultData(page, countPerPage, null, url+"/user/all?page="+(page+1), result.getTotalCount(), result.getDataInfo());
 	}
 
 	/**
-	 * 新增、编辑用户信息
+	 * 新增用户
+	 * @param user 用户
+	 */
+	@PostMapping("/users")
+	public void createUser(@RequestBody User user){
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date today = Calendar.getInstance().getTime();
+
+		user.setCreatedate(formatter.format(today));
+		userService.addUser(user);
+	}
+
+	/**
+	 * 编辑用户信息
 	 * @param user 用户信息
 	 */
-	@PostMapping(value = {"/add", "/edit"})
-    public void addUser(@RequestBody User user){
-	    if (user.getCreatedate() == null) {
-            DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date today = Calendar.getInstance().getTime();
-            user.setCreatedate(formatter.format(today));
-        }
+	@PutMapping("/users/{id}")
+    public void editUser(@PathVariable Integer id, @RequestBody User user){
+	    //............
 
 	    userService.addUser(user);
     }
-	
-//	@RequestMapping(value="/getparents/{id}", method=RequestMethod.GET)
-//	public List<Integer> getAllParentID( @PathVariable("id") int userID )
-//	{
-//		return userService.getAllParentID(userID) ;
-//	}
-//
-//	@RequestMapping(value="/{id}", method=RequestMethod.GET)
-//	public String getUserName( @PathVariable("id") int userID )
-//	{
-//		return userService.getUserName(userID);
-//	}
-//
-//	public Organization getSubDepartmentInfo(@PathParam("userID") int userID )
-//	{
-//		return userService.getSubDepartmentInfo(userID);
-//	}
-//
-//	public Boolean login( @PathParam("account") String account, @PathParam("pwd") String pwd)
-//	{
-//		return userService.login(account, pwd);
-//	}
-//
-//	@RequestMapping("/type")
-//	public Map<String, Integer> getUserType(ModelMap model)
-//	{
-//		Integer userId = (Integer) model.get("userId");
-//		userId = 3;
-//		Map<String, Integer> result = new HashMap<String, Integer>();
-//		result.put("type", userService.getUserById(userId).getType());
-//		return result;
-//	}
+
+    /**
+     * 删除用户
+     * @param id 用户ID
+     */
+    @DeleteMapping("/users/{id}")
+    public void deleteUser(@PathVariable Integer id){
+        userService.deleteUser(id);
+    }
 
 }

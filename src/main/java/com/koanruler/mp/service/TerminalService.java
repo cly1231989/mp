@@ -93,6 +93,10 @@ public class TerminalService {
 		return terminalRepository.findByTerminalnumberAndDeleteflag(terminalNum,false);
 	}
 
+    public Terminal getTerminal(Integer id) {
+        return terminalRepository.findOne(id);
+    }
+
 //	public boolean bindTerminal(String terminalNum, int patientID) {
 //		Terminal terminal = terminalRepository.findByTerminalnumberAndDeleteflag(terminalNum, false);
 //		terminal.setPatientid(patientID);
@@ -163,5 +167,9 @@ public class TerminalService {
 
     public void Save(Terminal terminal) {
         terminalRepository.save(terminal);
+    }
+
+    public void deleteTerminalById(Integer id) {
+        terminalRepository.delete(id);
     }
 }

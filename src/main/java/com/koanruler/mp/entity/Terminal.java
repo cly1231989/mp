@@ -13,8 +13,8 @@ public class Terminal {
 	private Integer id;
 	private String terminalnumber;
 	private Integer userid;
-	private Integer patientid;
-	private String bindtime;
+	private Integer patientid = 0;
+	private String  bindtime = "";
 	private Integer heartrateuplimit = 200;
 	private Integer heartratedownlimit = 40;
 	private Integer breatheuplimit = 50;
