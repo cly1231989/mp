@@ -9,4 +9,8 @@ public class HasNewFileToDownload {
     public HasNewFileToDownload(int hasnew) {
         this.hasnew = hasnew;
     }
+
+    public int getHasnew() {
+        return hasnew;
+    }
 }

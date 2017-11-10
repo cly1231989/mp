@@ -82,6 +82,9 @@ public interface RmpService {
     @WebMethod
     String DATA_GetPatientData(@WebParam(name = "patientID") int patientID, @WebParam(name = "type") int type);
 
+    //获取某一病人最新的数据
+    String DATA_GetPatientLatestData(@WebParam(name="patientID") int patientID);
+
     //设置数据的处理状态及处理用户
     @WebMethod
     String DATA_SetHandleState(@WebParam(name = "dataIDs") List<Integer> dataIDs,

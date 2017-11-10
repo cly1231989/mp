@@ -417,4 +417,8 @@ public class DataService {
 
         return strEcgReport;
     }
+
+    public List<Data> getPatientLatestData(int patientID) {
+        return dataRepository.findTopByPatientidOrderByIdDesc(patientID);
+    }
 }

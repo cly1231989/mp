@@ -66,7 +66,7 @@ public class PatientService {
                                 .collect(Collectors.toList());
     }
 
-    void Save(Patient patient) {
-        patientRepository.save(patient);
+    Patient Save(Patient patient) {
+        return patientRepository.save(patient);
     }
 }
