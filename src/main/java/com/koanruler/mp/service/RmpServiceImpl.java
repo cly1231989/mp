@@ -103,7 +103,7 @@ public class RmpServiceImpl implements RmpService {
         PatientSearchCondition patientSearchCondition = new PatientSearchCondition(patientName,
                                                                                    firstPatientIndex,
                                                                                    patientCount,
-                                                                              true,
+                                                                              false,
                                                                                    inhospital ? PatientSearchCondition.InHospitalStatus.inHospital: PatientSearchCondition.InHospitalStatus.outHospital);
 
         List<Integer> userIds = Arrays.asList(userID);
@@ -150,7 +150,8 @@ public class RmpServiceImpl implements RmpService {
         byte[] data;
 
         try {
-            String result = objectMapper.writeValueAsString( new ServiceResult(true, dataService.searchReplayInfo1(userID, searchCondition)) );
+            List datas = dataService.searchReplayInfo1(userID, searchCondition);
+            String result = new ServiceResult1(true, System.currentTimeMillis()-beginTime, "replayinfo", datas).toJson();
 
             data = result.getBytes("UTF-8");
             final int decompressedLength = data.length;
@@ -165,7 +166,7 @@ public class RmpServiceImpl implements RmpService {
 
             logger.debug("compress data time: " + (System.currentTimeMillis() - beginTime));
             return re;
-        } catch (JsonProcessingException|UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             logger.debug(e.getMessage());
             return null;
         }

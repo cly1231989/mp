@@ -160,7 +160,6 @@ public class DataService {
 
         BooleanBuilder predicate = new BooleanBuilder();
         if (searchCondition != null) {
-            predicate.and(queryFactory.selectFrom(QData.data).where(QData.data.patientid.eq(QPatient.patient.id).and(QData.data.type.eq(searchCondition.type))).exists());
             if (searchCondition.state != 5)
                 predicate.and(qPatient.handlestate.eq(searchCondition.state));
             if (searchCondition.bednum != null && !searchCondition.bednum.isEmpty())
@@ -178,10 +177,12 @@ public class DataService {
             } else {
                 predicate.and(qPatient.userid.in(userIds));
             }
+
+            predicate.and(queryFactory.selectFrom(QData.data).where(QData.data.patientid.eq(QPatient.patient.id).and(QData.data.type.eq(searchCondition.type))).exists());
         }
 
         List<Patient> patients;
-        Map<Integer, User> users = userService.getAllAnalysts();
+        Map<Integer, User> users = userService.getAllParentsAndChildrenAndAnalysts(userID);
         if (searchCondition != null && searchCondition.patientcount > 0) {
             patients = queryFactory.selectFrom(qPatient)
                                     .where(predicate)

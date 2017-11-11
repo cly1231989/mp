@@ -141,11 +141,17 @@ public class UserService {
 		return userRepository.findOne(userid);
 	}
 
-	//获取所有的分析师
-	public Map<Integer, User> getAllAnalysts() {
-		return userRepository.findByType(7)
-							 .stream()
-							 .collect(Collectors.toMap(User::getId, user -> user));
+	//获取所有的上下级用户
+	public Map<Integer, User> getAllParentsAndChildrenAndAnalysts(int userId) {
+		List<Integer> userIds = getAllChildID(userId);
+		userIds.addAll(getAllParentID(userId));
+		userIds = userIds.stream().distinct().collect(Collectors.toList());
+
+		Map<Integer, User> userMap = new HashMap();
+		List<User> users = getAllUser(userIds);
+		users.addAll(userRepository.findByType(7));
+		users.forEach(user -> userMap.put(user.getId(), user));
+		return userMap;
 	}
 
 	public List<User> getAllUser(List<Integer> userIDList) {
