@@ -42,7 +42,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
             .antMatchers(HttpMethod.OPTIONS).permitAll()
 //            .anyRequest().permitAll();
-            .antMatchers("/css/*", "/js/*", "**/filedown/**", "**/clientservice/**").permitAll()
+            .antMatchers("/static/**", "/*.html", "/", "**/filedown/**", "**/clientservice/**").permitAll()
             .antMatchers("/auth/**").permitAll() //refresh请求还是会被JwtAuthenticationTokenFilter拦截
             .anyRequest().authenticated();
         //怎么登录和注销？

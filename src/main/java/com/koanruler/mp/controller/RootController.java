@@ -15,18 +15,18 @@ import org.springframework.web.bind.annotation.RestController;
 @Controller
 public class RootController {
 
-    @RequestMapping(value = {"/", "/index"})
-    public String index(Model model) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        model.addAttribute("username", user.getName());
-        return "index";
+    @GetMapping("/")
+    public String index() {
+//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        model.addAttribute("username", user.getName());
+        return "/index.html";
     }
 
-    @RequestMapping("/login")
-    public String login(){
-        return "login";
-    }
-
-    @RequestMapping("/patient/index")
-    public String patientIndex(){ return "patient/index"; }
+//    @RequestMapping("/login")
+//    public String login(){
+//        return "login";
+//    }
+//
+//    @RequestMapping("/patient/index")
+//    public String patientIndex(){ return "patient/index"; }
 }
