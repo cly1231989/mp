@@ -8,6 +8,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sun.xml.internal.messaging.saaj.packaging.mime.util.QPDecoderStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,7 @@ public class PatientService {
 
         return queryFactory.selectFrom(QPatient.patient)
                 .where(predicate)
+                .orderBy(QPatient.patient.id.desc())
                 .offset(patientSearchCondition.getFirstIndex())
                 .limit(patientSearchCondition.getCount())
                 .orderBy(orderSpecifier)

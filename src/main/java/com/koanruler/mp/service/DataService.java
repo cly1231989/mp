@@ -78,6 +78,7 @@ public class DataService {
                                                 .join(qPatient)
                                                 .on(qData.patientid.eq(qPatient.id))
                                                 .where(predicate)
+                                                .orderBy(qData.id.desc())
                                                 .offset(firstIndex)
                                                 .limit(count)
                                                 .fetchResults();
