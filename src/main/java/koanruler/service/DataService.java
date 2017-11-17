@@ -423,4 +423,8 @@ public class DataService {
     public List<Data> getPatientLatestData(int patientID) {
         return dataRepository.findTopByPatientidOrderByIdDesc(patientID);
     }
+
+    public List<Data> GetTerminalLatestData(String terminalNum) {
+        return dataRepository.findTopByTerminalnumOrderByIdDesc(terminalNum);
+    }
 }

@@ -196,6 +196,14 @@ public class RmpServiceImpl implements RmpService {
     }
 
     @Override
+    public String DATA_GetTerminalLatestData(String terminalNum) {
+        long beginTime = System.currentTimeMillis();
+
+        List datas = dataService.GetTerminalLatestData(terminalNum);
+        return new ServiceResult1(true, System.currentTimeMillis() - beginTime, "data", datas).toJson();
+    }
+
+    @Override
     public String DATA_SetHandleState(List<Integer> dataIDs, int state, int userid) {
         long beginTime = System.currentTimeMillis();
 
