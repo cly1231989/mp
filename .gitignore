@@ -14,6 +14,7 @@ target/
 *.iws
 *.iml
 *.ipr
+src/main/resources/static/
 
 ### NetBeans ###
 nbproject/private/
@@ -24,4 +25,3 @@ nbdist/
 .nb-gradle/
 log/
 target/
-src/main/resources/static/
