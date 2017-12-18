@@ -1,7 +1,8 @@
 package koanruler.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -9,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.MissingResourceException;
 
 /**
  * Created by hose on 2017/8/29.
@@ -17,6 +17,20 @@ import java.util.MissingResourceException;
 @Controller
 @RequestMapping("/sys/filedown")
 public class FileDownloadController {
+
+    private Environment env;
+
+    private String strServer;
+
+    private String port;
+
+    @Autowired
+    public FileDownloadController(Environment env) {
+        this.env = env;
+        this.strServer = this.env.getProperty("ip");
+        this.port = this.env.getProperty("port");
+    }
+
     @RequestMapping(value = "/downurl", method = { RequestMethod.POST, RequestMethod.GET })
     public void downurl(HttpServletRequest request, HttpServletResponse response) throws Exception
     {
@@ -34,28 +48,23 @@ public class FileDownloadController {
         String yearandmonthfolder = fileName.substring(0, 6);
         String datefolder = fileName.substring(6, 8);
 
-        String strServer;
-        Integer port;
-
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("config");
         //应对因为进行了IP和端口映射而Redirect无效的情况,
-        //如果进行了映射，需要在config.properties中定义ip和port
-        try{
-            strServer = bundle.getString("ip");
-        }catch(MissingResourceException e){
+        //如果进行了映射，需要在application.properties中定义ip和port
+        //strServer = env.getProperty("ip");
+        if (strServer == null) {
             strServer = request.getLocalAddr() ;
         }
 
-        try{
-            port = Integer.parseInt( bundle.getString("port") );
-        }catch(MissingResourceException e){
-            port = request.getServerPort() ;
+        //String port1 = env.getProperty("port");
+        //port = Integer.valueOf(  );
+        if (port == null) {
+            port = String.valueOf(request.getServerPort()) ;
         }
 
         //System.out.println( "port: " + port);
         //System.out.println( "strServer: " + strServer);
 
-        String webpath 		= 	"http://" + strServer + ":"  + String.valueOf(port)+
+        String webpath 		= 	"http://" + strServer + ":"  + port +
                 "/download/" + yearandmonthfolder + "/" +  datefolder +
                 "/" + fileName ;
         //System.out.println( "webpath: " + webpath);
