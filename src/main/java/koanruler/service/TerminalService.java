@@ -153,7 +153,7 @@ public class TerminalService {
                     .on(QTerminal.terminal.patientid.eq(QPatient.patient.id))
                     .where(predicate);
 
-	    if (countPerPage == -1) {
+	    if (countPerPage != -1) {
             query = query.offset( (page-1) * countPerPage).limit(countPerPage);
         }
 
