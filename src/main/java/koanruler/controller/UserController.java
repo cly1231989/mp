@@ -1,5 +1,6 @@
 package koanruler.controller;
 
+import koanruler.entity.PwdEditInfo;
 import koanruler.entity.ResultData;
 import koanruler.entity.ResultList;
 import koanruler.entity.User;
@@ -55,10 +56,17 @@ public class UserController {
 	 */
 	@PutMapping("/users/{id}")
     public void editUser(@PathVariable Integer id, @RequestBody User user){
-	    //............
-
 	    userService.addUser(user);
     }
+
+	/**
+	 * 修改密码
+	 * @param user 用户信息
+	 */
+	@PutMapping("/users/{id}/pwd")
+	public void editPwd(@PathVariable Integer id, @RequestBody PwdEditInfo pwdEditInfo){
+		userService.editPwd(pwdEditInfo);
+	}
 
     /**
      * 删除用户

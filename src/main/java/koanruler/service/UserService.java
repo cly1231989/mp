@@ -4,7 +4,11 @@ import koanruler.repository.UserRepository;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import koanruler.entity.*;
+import koanruler.util.UserUtil;
+import org.apache.http.auth.InvalidCredentialsException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -250,5 +254,15 @@ public class UserService {
 
 	public void deleteUser(Integer id) {
 		userRepository.delete(id);
+	}
+
+	public void editPwd(PwdEditInfo pwdEditInfo) {
+		if (UserUtil.getCurUser().getId() != pwdEditInfo.getUserId())
+			throw new AccessDeniedException("not allowd");
+
+		if (userRepository.findOne(pwdEditInfo.getUserId()).getPwd().compareTo(pwdEditInfo.getOldPwd()) != 0)
+			throw new AccessDeniedException("password error");
+
+		userRepository.editPwd(pwdEditInfo.getUserId(), pwdEditInfo.getNewPwd());
 	}
 }
