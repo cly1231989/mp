@@ -124,7 +124,8 @@ public class DataService {
         if (user != null)
             userName = user.getName();
 
-        switch(patientDataInfo.getHandlestate()){
+        int handlestate = patientDataInfo.getHandlestate() == null ? 0 : patientDataInfo.getHandlestate();
+        switch(handlestate){
             case 0:
                 return patientDataInfo.getRecordstarttime() + "    " + "未处理";
             case 1:
@@ -326,9 +327,9 @@ public class DataService {
         return queryFactory.selectFrom(QData.data)
                     .where(predicate)
                     .orderBy(QData.data.id.desc())
-                    .fetch()
-                    .stream()
-                    .filter(data -> IsDataTimeSpanEnough(data, minseconds)).collect(Collectors.toList());
+                    .fetch();
+//                    .stream()
+//                    .filter(data -> IsDataTimeSpanEnough(data, minseconds)).collect(Collectors.toList());
     }
 
     private String []extention = {".mpm", ".mpr", ".mpe", ".mpb"};

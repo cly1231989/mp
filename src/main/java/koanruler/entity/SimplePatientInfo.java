@@ -22,7 +22,7 @@ public class SimplePatientInfo {
 	public SimplePatientInfo() {
 	}
 
-	public SimplePatientInfo(int id, String name, String age, String sex, String bednum, String birthday, String outpatientnumber, String hospitalnumber, String hospital, String department, String symptom, String handlebegintime, String begintime, String endtime, int handleUserID, int handleState, String state) {
+	public SimplePatientInfo(int id, String name, String age, String sex, String bednum, String birthday, String outpatientnumber, String hospitalnumber, String hospital, String department, String symptom, String handlebegintime, String begintime, String endtime, Integer handleUserID, Integer handleState, String state) {
 		this.id = id;
 		this.name = name;
 		this.age = age;
@@ -37,8 +37,8 @@ public class SimplePatientInfo {
 		this.handlebegintime = handlebegintime;
 		this.begintime = begintime;
 		this.endtime = endtime;
-		this.handleUserID = handleUserID;
-		this.handleState = handleState;
+		this.handleUserID = handleUserID == null ? 0 : handleUserID;
+		this.handleState = handleState == null ? 0 : handleState;
 		this.state = state;
 	}
 

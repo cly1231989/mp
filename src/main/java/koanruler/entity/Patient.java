@@ -42,10 +42,10 @@ public class Patient {
 	String hospital;
 
 	@Column(name = "handlestate", columnDefinition="int(4) default 0 COMMENT '0:未处理;1:正在处理;2:完成处理;3:更新处理;4:中断处理;7:正在处理，有新数据; 8:完成处理，有新数据;'")
-	private Integer handlestate;
+	private Integer handlestate = 0;
 	
 	@Column(name = "handleuserid", columnDefinition="int(11) default 0 COMMENT '当前处理该病人数据的用户'")
-	private Integer handleuserid;
+	private Integer handleuserid = 0;
 	
 	@Column(name = "handlestarttime", columnDefinition="varchar(20) default '0000-00-00 00:00:00' COMMENT '该病人的开始处理时间'")
 	private String handlestarttime;

@@ -122,6 +122,10 @@ public interface RmpService {
     @WebMethod
     String TERMINAL_GetAllTerminalInfo(@WebParam(name = "userID") int userID);
 
+    //获取某一用户的所有终端，对数据进行压缩
+    @WebMethod
+    byte[] TERMINAL_GetAllTerminalInfo1(@WebParam(name = "userID") int userID);
+
     //根据id获取终端信息
     @WebMethod
     String TERMINAL_GetTerminal(@WebParam(name = "terminalID") String terminalID);

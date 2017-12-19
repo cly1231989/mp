@@ -23,8 +23,11 @@ public class User {
 	private String createdate;
 	private Integer delflag;
 	private Integer version;
+	@Column(name = "bp_show_mode")
 	private Integer BPShowMode = 0;
+	@Column(name = "spo2_warning")
 	private Boolean spo2Warning = true;
+	@Column(name = "bt_warning")
 	private Boolean BTWarning = true;
 
 	@Transient

@@ -3,6 +3,7 @@ package koanruler.webservice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import koanruler.entity.*;
 import koanruler.service.*;
+import koanruler.util.CompressUtil;
 import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
 import org.slf4j.Logger;
@@ -147,29 +148,9 @@ public class RmpServiceImpl implements RmpService {
         PatientDataSearchCondition searchCondition = new PatientDataSearchCondition(patientname, bednum, hospitalid, departmentid, begindate, enddate, type, state, patientcount, minseconds);
 
         long beginTime = System.currentTimeMillis();
-        byte[] data;
-
-        try {
-            List datas = dataService.searchReplayInfo1(userID, searchCondition);
-            String result = new ServiceResult1(true, System.currentTimeMillis()-beginTime, "replayinfo", datas).toJson();
-
-            data = result.getBytes("UTF-8");
-            final int decompressedLength = data.length;
-
-            LZ4Compressor compressor = LZ4Factory.safeInstance().fastCompressor();
-            int maxCompressedLength = compressor.maxCompressedLength(decompressedLength);
-            byte[] compressed = new byte[maxCompressedLength];
-            int compressedLength = compressor.compress(data, 0, decompressedLength, compressed, 0, maxCompressedLength);
-
-            byte[] re = new byte[compressedLength];
-            System.arraycopy(compressed, 0, re, 0, compressedLength);
-
-            logger.debug("compress data time: " + (System.currentTimeMillis() - beginTime));
-            return re;
-        } catch (UnsupportedEncodingException e) {
-            logger.debug(e.getMessage());
-            return null;
-        }
+        List datas = dataService.searchReplayInfo1(userID, searchCondition);
+        String result = new ServiceResult1(true, System.currentTimeMillis()-beginTime, "replayinfo", datas).toJson();
+        return CompressUtil.compressData(result);
     }
 
 //    @Override
@@ -254,6 +235,16 @@ public class RmpServiceImpl implements RmpService {
         result.put("user", userService.getUser(userID));
         return result.toJson();
         //return new ServiceResult(true, terminalService.getAllTerminalInfo(userID) ).toJson();
+    }
+
+    @Override
+    public byte[] TERMINAL_GetAllTerminalInfo1(@WebParam(name = "userID") int userID) {
+        long beginTime = System.currentTimeMillis();
+
+        List terminalInfo = terminalService.getAllTerminalInfo(userID);
+        ServiceResult1 result = new ServiceResult1(true, System.currentTimeMillis()-beginTime, "terminalinfo", terminalInfo);
+        result.put("user", userService.getUser(userID));
+        return CompressUtil.compressData(result.toJson());
     }
 
     @Override

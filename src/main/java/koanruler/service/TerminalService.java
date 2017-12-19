@@ -57,6 +57,7 @@ public class TerminalService {
      * @return
      */
 	public List<BindTerminalInfo> getAllTerminalInfo(int userID) {
+        boolean getFullName = (userService.getUser(userID).getType() == 1 );  //如果是管理员，则显示层级机构-管理员/中心/医院
         List<BindTerminalInfo> bindTerminalInfoList = new ArrayList<>();
         List<Tuple> result = searchTerminalInfo(userID, null).getResults();
 
@@ -76,11 +77,21 @@ public class TerminalService {
 
             if(user.getType() == 5){   //科室
                 bindTerminalInfo.getPatientinfo().setDepartment( user.getName() );
-                User parent = userService.getUser(user.getParentuserid());
-                bindTerminalInfo.getPatientinfo().setHospital(parent.getName());
+                if (getFullName) {
+                    String fullName = userService.getFullName(user.getParentuserid());
+                    bindTerminalInfo.getPatientinfo().setHospital(fullName.substring(fullName.indexOf("/")+1));
+                } else {
+                    User parent = userService.getUser(user.getParentuserid());
+                    bindTerminalInfo.getPatientinfo().setHospital(parent.getName());
+                }
             }else if(user.getType() == 4){   //医院
                 bindTerminalInfo.getPatientinfo().setDepartment("");
-                bindTerminalInfo.getPatientinfo().setHospital(user.getName());
+                if (getFullName) {
+                    String fullName = userService.getFullName(user.getId());
+                    bindTerminalInfo.getPatientinfo().setHospital(fullName.substring(fullName.indexOf("/")+1));
+                } else {
+                    bindTerminalInfo.getPatientinfo().setHospital(user.getName());
+                }
             }
 
             bindTerminalInfoList.add(bindTerminalInfo);
