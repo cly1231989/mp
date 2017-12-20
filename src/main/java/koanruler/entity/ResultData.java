@@ -28,7 +28,9 @@ public class ResultData<T> {
         setPrev_page_url(prevPageUrl);
 
         setFrom((page-1)*countPerPage+1);
-        setTo((page-1)*countPerPage + data.size());
+        if (data != null)
+            setTo((page-1)*countPerPage + data.size());
+
         setTotal(totalCount);
     }
 

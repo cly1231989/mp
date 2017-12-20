@@ -43,6 +43,7 @@ public class PatientController {
         List<Integer> userIds = userService.getAllChildID(UserUtil.getCurUser().getId());
         QueryResults<Patient> results = patientService.getOneGroupPatientInfo(userIds,
                 patientSearchCondition);
+        results.getResults().forEach(patient -> patient.setUsername(userService.getFullName(patient.getUserid())));
 
         return new ResultData(page, countPerPage, null, null, results.getTotal(), results.getResults());
     }

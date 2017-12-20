@@ -145,7 +145,17 @@ public class RmpServiceImpl implements RmpService {
 
     @Override
     public byte[] DATA_GetCompressedSearchReplayInfo(int userID, String patientname, String bednum, int hospitalid, int departmentid, String begindate, String enddate, int type, int state, int minseconds, int patientcount) {
-        PatientDataSearchCondition searchCondition = new PatientDataSearchCondition(patientname, bednum, hospitalid, departmentid, begindate, enddate, type, state, patientcount, minseconds);
+        PatientDataSearchCondition searchCondition = new PatientDataSearchCondition(patientname, bednum, hospitalid, departmentid, begindate, enddate, type, state, 0, patientcount, minseconds);
+
+        long beginTime = System.currentTimeMillis();
+        List datas = dataService.searchReplayInfo1(userID, searchCondition);
+        String result = new ServiceResult1(true, System.currentTimeMillis()-beginTime, "replayinfo", datas).toJson();
+        return CompressUtil.compressData(result);
+    }
+
+    @Override
+    public byte[] DATA_GetCompressedPagedReplayInfo(int userID, String patientname, String bednum, int hospitalid, int departmentid, String begindate, String enddate, int type, int state, int minseconds, int first, int patientcount) {
+        PatientDataSearchCondition searchCondition = new PatientDataSearchCondition(patientname, bednum, hospitalid, departmentid, begindate, enddate, type, state, first, patientcount, minseconds);
 
         long beginTime = System.currentTimeMillis();
         List datas = dataService.searchReplayInfo1(userID, searchCondition);
@@ -238,7 +248,7 @@ public class RmpServiceImpl implements RmpService {
     }
 
     @Override
-    public byte[] TERMINAL_GetAllTerminalInfo1(@WebParam(name = "userID") int userID) {
+    public byte[] TERMINAL_GetCompressedAllTerminalInfo(@WebParam(name = "userID") int userID) {
         long beginTime = System.currentTimeMillis();
 
         List terminalInfo = terminalService.getAllTerminalInfo(userID);

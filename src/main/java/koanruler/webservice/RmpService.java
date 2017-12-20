@@ -72,6 +72,21 @@ public interface RmpService {
                                               @WebParam(name = "minseconds") int minseconds,
                                               @WebParam(name = "patientcount") int patientcount);
 
+    //分页获取某一用户及其下属机构的数据，并根据条件过滤
+    @WebMethod
+    byte[] DATA_GetCompressedPagedReplayInfo(@WebParam(name = "userID") int userID,
+                                              @WebParam(name = "patientname") String patientname,
+                                              @WebParam(name = "bednum") String bednum,
+                                              @WebParam(name = "hospitalid") int hospitalid,
+                                              @WebParam(name = "departmentid") int departmentid,
+                                              @WebParam(name = "begindate") String begindate,
+                                              @WebParam(name = "enddate") String enddate,
+                                              @WebParam(name = "type") int type,
+                                              @WebParam(name = "state") int state,
+                                              @WebParam(name = "minseconds") int minseconds,
+                                              @WebParam(name = "first") int first,
+                                              @WebParam(name = "patientcount") int patientcount);
+
 //    //获取某一用户及其下属机构的病人及对应数据
 //    @WebMethod
 //    String DATA_GetOneGroupPatientInfo(@WebParam(name = "userID") int userID,
@@ -124,7 +139,7 @@ public interface RmpService {
 
     //获取某一用户的所有终端，对数据进行压缩
     @WebMethod
-    byte[] TERMINAL_GetAllTerminalInfo1(@WebParam(name = "userID") int userID);
+    byte[] TERMINAL_GetCompressedAllTerminalInfo(@WebParam(name = "userID") int userID);
 
     //根据id获取终端信息
     @WebMethod

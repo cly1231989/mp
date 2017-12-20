@@ -179,7 +179,7 @@ public class UserService {
 				List<User> parentUsers = getParentUser(user, userMap);
 
 				List<String> result = parentUsers.stream().map(user1 -> user1.getName()).collect(Collectors.toList());
-				allUserFullName.put(user.getId(), String.join("/", result));
+				allUserFullName.put(user.getId(), String.join(" / ", result));
 			});
 		}
 

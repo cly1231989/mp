@@ -18,7 +18,7 @@ public interface DataRepository extends JpaRepository<Data, Integer>, QueryDslPr
     @Query("Select Count(d.id) from Data d where d.patientid IN :patientIDList")
     Long getDataCountByUsers(@Param("patientIDList") List<Integer> patientIDList);
 
-    List<Data> findTopByPatientidOrderByIdDesc(int patientID);
+    List<Data> findTopByPatientidAndTypeOrderByIdDesc(int patientID, int type);
     List<Data> findTopByTerminalnumOrderByIdDesc(String terminalNum);
 
     List<Data> findByPatientidAndType(int patientID, int type);

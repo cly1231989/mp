@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.sql.Timestamp;
 
 @Entity
 public class Terminal {
@@ -42,6 +43,8 @@ public class Terminal {
 	private Boolean deleteflag = false;
 	private Boolean newflag = true;
 	private Boolean online;
+	private Integer oweruserid;
+	private Timestamp createdate;
 
 	// Constructors
 
@@ -74,7 +77,7 @@ public class Terminal {
 			Boolean breathon, Boolean oxygenon, Boolean bloodpreon,
 			Boolean temperatureon, Boolean autotest, Boolean issync,
 			Boolean isbindinfosync, Boolean deleteflag, Boolean newflag,
-			Boolean online) {
+			Boolean online, Integer oweruserid, Timestamp createdate) {
 		this.terminalnumber = terminalnumber;
 		this.userid = userid;
 		this.patientid = patientid;
@@ -106,6 +109,8 @@ public class Terminal {
 		this.deleteflag = deleteflag;
 		this.newflag = newflag;
 		this.online = online;
+		this.oweruserid = oweruserid;
+		this.createdate = createdate;
 	}
 
 	public Integer getId() {
@@ -364,4 +369,19 @@ public class Terminal {
 		this.online = online;
 	}
 
+	public Integer getOweruserid() {
+		return oweruserid;
+	}
+
+	public void setOweruserid(Integer oweruserid) {
+		this.oweruserid = oweruserid;
+	}
+
+	public Timestamp getCreatedate() {
+		return createdate;
+	}
+
+	public void setCreatedate(Timestamp createdate) {
+		this.createdate = createdate;
+	}
 }

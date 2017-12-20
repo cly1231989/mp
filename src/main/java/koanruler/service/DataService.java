@@ -6,6 +6,7 @@ import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import koanruler.entity.*;
+import koanruler.webservice.RmpServiceImpl;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -15,6 +16,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -44,6 +47,8 @@ public class DataService {
 
 	@Autowired
     private JPAQueryFactory queryFactory;
+
+    private final Logger logger = LoggerFactory.getLogger(DataService.class);
 
 	public long getCount() {		
 		return dataRepository.count();
@@ -188,6 +193,7 @@ public class DataService {
         if (searchCondition != null && searchCondition.patientcount > 0) {
             patients = queryFactory.selectFrom(qPatient)
                                     .where(predicate)
+                                    .offset(searchCondition.first)
                                     .limit(searchCondition.patientcount)
                                     .orderBy(qPatient.id.desc())
                                     .fetch();
@@ -372,6 +378,7 @@ public class DataService {
 
         try {
             File file = new File(dataPath + yearAndMonthFolder + "\\" + dateFolder + "\\" + fileName);
+            logger.debug("file name: " + file.getAbsolutePath() + ", file length: " + file.length() + ". file length from client: " +  filelength);
 
             if( filelength != file.length() )
                 return new HasNewFileToDownload(1);
@@ -422,7 +429,7 @@ public class DataService {
     }
 
     public List<Data> getPatientLatestData(int patientID) {
-        return dataRepository.findTopByPatientidOrderByIdDesc(patientID);
+        return dataRepository.findTopByPatientidAndTypeOrderByIdDesc(patientID, 0);
     }
 
     public List<Data> GetTerminalLatestData(String terminalNum) {

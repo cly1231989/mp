@@ -9,6 +9,7 @@ public class PatientDataSearchCondition {
 	public String enddate = "";
 	public int type;   //数据类型，搜索时不考虑它，如果没有相应类型的数据，在界面上提示用户，无数据。
 	public int state;	//处理状态
+	public int first;
 	public int patientcount;	//病人数量
 	public int minseconds;
 
@@ -17,7 +18,7 @@ public class PatientDataSearchCondition {
 
 	public PatientDataSearchCondition(String patientname, String bednum,
 									  int hospitalid, int departmentid, String begindate, String enddate,
-									  int type, int state, int patientcount, int minseconds) {
+									  int type, int state, int first, int patientcount, int minseconds) {
 		super();
 		this.patientname = patientname;
 		this.bednum = bednum;
@@ -27,6 +28,7 @@ public class PatientDataSearchCondition {
 		this.enddate = enddate;
 		this.type = type;
 		this.state = state;
+		this.first = first;
 		this.patientcount = patientcount;
 		this.minseconds = minseconds;
 	}
@@ -93,6 +95,14 @@ public class PatientDataSearchCondition {
 
 	public void setState(int state) {
 		this.state = state;
+	}
+
+	public int getFirst() {
+		return first;
+	}
+
+	public void setFirst(int first) {
+		this.first = first;
 	}
 
 	public int getPatientcount() {
