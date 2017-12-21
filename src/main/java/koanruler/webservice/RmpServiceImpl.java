@@ -59,7 +59,11 @@ public class RmpServiceImpl implements RmpService {
         long beginTime = System.currentTimeMillis();
 
         User user = userService.getUser(userID);
-        return new ServiceResult1(true, System.currentTimeMillis() - beginTime, "user", user).toJson();
+        String result = new ServiceResult1(true, System.currentTimeMillis() - beginTime, "user", user).toJson();
+        result = result.replace("btwarning", "BTWarning").replace("bpshowMode", "BPShowMode");
+        return result;
+
+        //return new ServiceResult1(true, System.currentTimeMillis() - beginTime, "user", user).toJson();
         //return new ServiceResult(true, userService.getUser(userID)).toJson();
     }
 

@@ -9,6 +9,7 @@ import koanruler.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -21,9 +22,6 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-	@Value("${url}")
-	private String url;
-
 	/**
 	 * 获取本用户及下属用户的信息
 	 */
@@ -33,8 +31,10 @@ public class UserController {
 											@RequestParam(name = "filter", defaultValue = "") String filter,
 											@RequestParam(name = "sort", defaultValue = "") Integer sort
 											){
+        String url = ServletUriComponentsBuilder.fromCurrentRequestUri().toUriString();
+
 		ResultList<User> result = userService.getSubUser( UserUtil.getCurUser().getId(), page-1, countPerPage, filter);
-		return new ResultData(page, countPerPage, null, url+"/user/all?page="+(page+1), result.getTotalCount(), result.getDataInfo());
+		return new ResultData(page, countPerPage, null, url+"?page="+(page+1), result.getTotalCount(), result.getDataInfo());
 	}
 
 	/**
