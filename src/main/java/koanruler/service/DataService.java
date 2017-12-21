@@ -278,27 +278,21 @@ public class DataService {
             Data data = dataRepository.findOne(dataID);
             Patient patient = patientService.getPatient(data.getPatientid());
             if (state == 1){ //eHandling
-                data.setHandlestate(state);
-                data.setUserid(userid);
-
-                patient.setHandlestate(state);
-                patient.setHandleuserid(userid);
 
                 if ( data.getHandlestate() == 0){ //eNotHandle
+                    data.setUserid(userid);
+                    patient.setHandleuserid(userid);
+
                     data.setHandlestarttime(time);
                     patient.setHandlestarttime(time);
                 }
             }
             else if (state == 2 /*eFinishHandle*/ || state == 3 /*eUpdateHandle*/){
-                data.setHandlestate(state);
                 data.setHandleendtime(time);
-                patient.setHandlestate(state);
             }
-            else
-            {
-                data.setHandlestate(state);
-                patient.setHandlestate(state);
-            }
+
+            data.setHandlestate(state);
+            patient.setHandlestate(state);
 
             dataRepository.save(data);
             patientService.Save(patient);
