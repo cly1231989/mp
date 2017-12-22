@@ -44,7 +44,7 @@ public class CustomUserDetails extends User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return super.getDelflag() == 0;
+        return super.getDelflag() == null || super.getDelflag() == 0;
     }
 
     @Override

@@ -5,13 +5,11 @@ import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import koanruler.entity.*;
 import koanruler.util.UserUtil;
-import org.apache.http.auth.InvalidCredentialsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -256,12 +254,13 @@ public class UserService {
 		userRepository.delete(id);
 	}
 
+	@Transactional
 	public void editPwd(PwdEditInfo pwdEditInfo) {
 		if (UserUtil.getCurUser().getId() != pwdEditInfo.getUserId())
-			throw new AccessDeniedException("not allowd");
+			throw new AccessDeniedException("禁止修改其他人的密码");
 
 		if (userRepository.findOne(pwdEditInfo.getUserId()).getPwd().compareTo(pwdEditInfo.getOldPwd()) != 0)
-			throw new AccessDeniedException("password error");
+			throw new AccessDeniedException("原密码错误");
 
 		userRepository.editPwd(pwdEditInfo.getUserId(), pwdEditInfo.getNewPwd());
 	}

@@ -14,15 +14,15 @@ public class User {
 	private String pwd;
 	private String name;
 	private Integer type;
-	private Integer right1;
-	private Integer right2;
-	private Integer right3;
-	private Integer right4;
+	private Integer right1 = 0;
+	private Integer right2 = 0;
+	private Integer right3 = 0;
+	private Integer right4 = 0;
 	private String phone;
 	private String address;
 	private String createdate;
-	private Integer delflag;
-	private Integer version;
+	private Integer delflag = 0;
+	private Integer version = 0;
 	@Column(name = "bp_show_mode")
 	private Integer BPShowMode = 0;
 	@Column(name = "spo2_warning")
