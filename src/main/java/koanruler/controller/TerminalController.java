@@ -7,10 +7,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 public class TerminalController {
 	@Autowired
 	private TerminalService terminalService;
+
+
+    /**
+     * 获取用户及下属机构的终端信息
+     * @param userId
+     * @return
+     */
+	@GetMapping("/webservice/user/{id}/ters")
+    public String getTerminals(@PathVariable("id") int userId) {
+       //return terminalService.getAllTerminalInfo(userId);
+        long beginTime = System.currentTimeMillis();
+
+        List terminalInfo = terminalService.getAllTerminalInfo(userId);
+        return new ServiceResult1(true, System.currentTimeMillis()-beginTime, "terminalinfo", terminalInfo).toJson();
+        //result.put("user", users.getUser(userId));
+        //return result.toJson();
+    }
 
     /**
      * 获取用户及下属机构的终端信息，可根据终端编号进行搜索

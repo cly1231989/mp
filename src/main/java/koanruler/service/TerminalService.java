@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import koanruler.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -57,7 +58,11 @@ public class TerminalService {
      * @return
      */
 	public List<BindTerminalInfo> getAllTerminalInfo(int userID) {
-        boolean getFullName = (userService.getUser(userID).getType() == 1 );  //如果是管理员，则显示层级机构-管理员/中心/医院
+	    User user1 = userService.getUser(userID);
+	    if (user1 == null)
+	        throw new UsernameNotFoundException("指定ID的用户不存在");
+
+        boolean getFullName = (user1.getType() == 1 );  //如果是管理员，则显示层级机构-管理员/中心/医院
         List<BindTerminalInfo> bindTerminalInfoList = new ArrayList<>();
         List<Tuple> result = searchTerminalInfo(userID, null).getResults();
 
