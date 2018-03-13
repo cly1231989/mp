@@ -15,6 +15,7 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -105,14 +106,20 @@ public class RmpServiceImpl implements RmpService {
     public String PATIENT_GetOneGroupPatientInfo(int userID, String patientName, boolean inhospital, int firstPatientIndex, int patientCount) {
         long beginTime = System.currentTimeMillis();
 
-        PatientSearchCondition patientSearchCondition = new PatientSearchCondition(patientName,
-                                                                                   firstPatientIndex,
-                                                                                   patientCount,
-                                                                              false,
-                                                                                   inhospital ? PatientSearchCondition.InHospitalStatus.inHospital: PatientSearchCondition.InHospitalStatus.outHospital);
+        List<Patient> patients;
+        if (patientCount == 0){
+            patients = new ArrayList<Patient>();
+        } else {
+            PatientSearchCondition patientSearchCondition = new PatientSearchCondition(patientName,
+                    firstPatientIndex,
+                    patientCount,
+                    false,
+                    inhospital ? PatientSearchCondition.InHospitalStatus.inHospital : PatientSearchCondition.InHospitalStatus.outHospital);
 
-        List<Integer> userIds = Arrays.asList(userID);
-        List patients = patientService.getOneGroupPatientInfo(userIds, patientSearchCondition).getResults();
+            List<Integer> userIds = Arrays.asList(userID);
+            patients = patientService.getOneGroupPatientInfo(userIds, patientSearchCondition).getResults();
+        }
+
         return new ServiceResult1(true, System.currentTimeMillis()-beginTime, "patientlist", patients).toJson();
         //return new ServiceResult(true, patientService.getOneGroupPatientInfo(userIds, patientSearchCondition).getResults()).toJson();
     }
@@ -143,7 +150,7 @@ public class RmpServiceImpl implements RmpService {
         long beginTime = System.currentTimeMillis();
 
         Patient patient = patientService.getPatient(patientID);
-        return new ServiceResult1(true, System.currentTimeMillis() - beginTime, "patient", patient).toJson();
+        return new ServiceResult1(true, System.currentTimeMillis() - beginTime, "patient", patient).toJson().replace("bednumber", "bednum");
         //return new ServiceResult(true, patientService.getPatient(patientID)).toJson();
     }
 
